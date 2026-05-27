@@ -314,6 +314,8 @@
 		"getOpenRouterApiKey": "OpenRouter APIキーを取得",
 		"vercelAiGatewayApiKey": "Vercel AI Gateway APIキー",
 		"getVercelAiGatewayApiKey": "Vercel AI Gateway APIキーを取得",
+		"opencodeGoApiKey": "Opencode Go APIキー",
+		"getOpencodeGoApiKey": "Opencode Go APIキーを取得",
 		"apiKeyStorageNotice": "APIキーはVSCodeのシークレットストレージに安全に保存されます",
 		"openAiCodexRateLimits": {
 			"title": "Usage Limits for Codex{{planLabel}}",

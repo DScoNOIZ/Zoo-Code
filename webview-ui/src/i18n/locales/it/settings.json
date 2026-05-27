@@ -314,6 +314,8 @@
 		"getOpenRouterApiKey": "Ottieni chiave API OpenRouter",
 		"vercelAiGatewayApiKey": "Chiave API Vercel AI Gateway",
 		"getVercelAiGatewayApiKey": "Ottieni chiave API Vercel AI Gateway",
+		"opencodeGoApiKey": "Chiave API Opencode Go",
+		"getOpencodeGoApiKey": "Ottieni chiave API Opencode Go",
 		"apiKeyStorageNotice": "Le chiavi API sono memorizzate in modo sicuro nell'Archivio Segreto di VSCode",
 		"openAiCodexRateLimits": {
 			"title": "Usage Limits for Codex{{planLabel}}",
