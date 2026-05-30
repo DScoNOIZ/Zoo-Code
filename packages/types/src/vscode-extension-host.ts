@@ -292,6 +292,7 @@ export type ExtensionState = Pick<
 	| "openRouterImageGenerationSelectedModel"
 	| "includeTaskHistoryInEnhance"
 	| "reasoningBlockCollapsed"
+	| "chatFontSize"
 	| "enterBehavior"
 	| "includeCurrentTime"
 	| "includeCurrentCost"
