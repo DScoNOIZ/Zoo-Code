@@ -55,3 +55,4 @@ qdrant_storage/
 plans/
 /OTCHETY
 roo-cli-*.tar.gz*
+releases/
