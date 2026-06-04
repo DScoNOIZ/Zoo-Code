@@ -77,6 +77,7 @@ import { getModelMaxOutputTokens } from "../../shared/api"
 import { McpHub } from "../../services/mcp/McpHub"
 import { McpServerManager } from "../../services/mcp/McpServerManager"
 import { RepoPerTaskCheckpointService } from "../../services/checkpoints"
+import { info, warn, error, initDebugLog } from "../tools/ref/superDebug"
 
 // integrations
 import { DiffViewProvider } from "../../integrations/editor/DiffViewProvider"
@@ -1798,6 +1799,8 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			// messages from previous session).
 			this.clineMessages = []
 			this.apiConversationHistory = []
+			initDebugLog(this.cwd, true)
+			info("TASK", "Task started", { taskId: this.taskId, mode: this._taskMode })
 
 			// The todo list is already set in the constructor if initialTodos were provided
 			// No need to add any messages - the todoList property is already set
@@ -2119,6 +2122,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		this.abort = true
 
 		// Reset consecutive error counters on abort (manual intervention)
+		warn("TASK", "Task aborted", { taskId: this.taskId, isAbandoned })
 		this.consecutiveNoToolUseCount = 0
 		this.consecutiveNoAssistantMessagesCount = 0
 
@@ -2144,6 +2148,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 	public dispose(): void {
 		console.log(`[Task#dispose] disposing task ${this.taskId}.${this.instanceId}`)
+		info("TASK", "Task disposed", { taskId: this.taskId, instanceId: this.instanceId })
+
+		// Cancel debounced token usage emitter to prevent zombie callbacks
+		try {
+			this.debouncedEmitTokenUsage.cancel()
+		} catch (error) {
+			console.error("Error cancelling debounced token usage emitter:", error)
+		}
 
 		// Cancel any in-progress HTTP request
 		try {
@@ -2647,6 +2659,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				let reasoningMessage = ""
 				let pendingGroundingSources: GroundingSource[] = []
 				this.isStreaming = true
+				info("TASK:STREAM", "Stream started", { modelId: cachedModelId })
 
 				try {
 					const iterator = stream[Symbol.asyncIterator]()
@@ -2768,7 +2781,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 										// Add to content and present
 										this.assistantMessageContent.push(partialToolUse)
 										this.userMessageContentReady = false
-										presentAssistantMessage(this)
+										presentAssistantMessage(this).catch((err) => {
+											if (!this.abort) {
+												console.error(
+													"[presentAssistantMessage] Unhandled error at tool_call_start:",
+													err,
+												)
+											}
+										})
 									} else if (event.type === "tool_call_delta") {
 										// Process chunk using streaming JSON parser
 										const partialToolUse = NativeToolCallParser.processStreamingChunk(
@@ -2787,7 +2807,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 												this.assistantMessageContent[toolUseIndex] = partialToolUse
 
 												// Present updated tool use
-												presentAssistantMessage(this)
+												presentAssistantMessage(this).catch((err) => {
+													if (!this.abort) {
+														console.error(
+															"[presentAssistantMessage] Unhandled error at tool_call_delta:",
+															err,
+														)
+													}
+												})
 											}
 										}
 									} else if (event.type === "tool_call_end") {
@@ -2813,7 +2840,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 											this.userMessageContentReady = false
 
 											// Present the finalized tool call
-											presentAssistantMessage(this)
+											presentAssistantMessage(this).catch((err) => {
+												if (!this.abort) {
+													console.error(
+														"[presentAssistantMessage] Unhandled error at tool_call_end (final):",
+														err,
+													)
+												}
+											})
 										} else if (toolUseIndex !== undefined) {
 											// finalizeStreamingToolCall returned null (malformed JSON or missing args)
 											// Mark the tool as non-partial so it's presented as complete, but execution
@@ -2832,7 +2866,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 											this.userMessageContentReady = false
 
 											// Present the tool call - validation will handle missing params
-											presentAssistantMessage(this)
+											presentAssistantMessage(this).catch((err) => {
+												if (!this.abort) {
+													console.error(
+														"[presentAssistantMessage] Unhandled error at tool_call_end (fallback):",
+														err,
+													)
+												}
+											})
 										}
 									}
 								}
@@ -2865,7 +2906,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 								// Present the tool call to user - presentAssistantMessage will execute
 								// tools sequentially and accumulate all results in userMessageContent
-								presentAssistantMessage(this)
+								presentAssistantMessage(this).catch((err) => {
+									if (!this.abort) {
+										console.error(
+											"[presentAssistantMessage] Unhandled error at legacy tool_call:",
+											err,
+										)
+									}
+								})
 								break
 							}
 							case "text": {
@@ -2884,7 +2932,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 									})
 									this.userMessageContentReady = false
 								}
-								presentAssistantMessage(this)
+								presentAssistantMessage(this).catch((err) => {
+									if (!this.abort) {
+										console.error("[presentAssistantMessage] Unhandled error at text block:", err)
+									}
+								})
 								break
 							}
 						}
@@ -3114,6 +3166,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 						const cancelReason: ClineApiReqCancelReason = this.abort ? "user_cancelled" : "streaming_failed"
 
 						const rawErrorMessage = error.message ?? JSON.stringify(serializeError(error), null, 2)
+						error("TASK:STREAM", "Stream failed", {
+							error: rawErrorMessage,
+							retryAttempt: currentItem.retryAttempt,
+						})
 						const streamingFailedMessage = this.abort
 							? undefined
 							: `${t("common:interruption.streamTerminatedByProvider")}: ${rawErrorMessage}`
@@ -3150,6 +3206,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 							}
 
 							// Push the same content back onto the stack to retry, incrementing the retry attempt counter
+							info("TASK", "Retrying with effective history", {
+								retryAttempt: (currentItem.retryAttempt ?? 0) + 1,
+							})
 							stack.push({
 								userContent: currentUserContent,
 								includeFileDetails: false,
@@ -3211,7 +3270,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 							this.userMessageContentReady = false
 
 							// Present the finalized tool call
-							presentAssistantMessage(this)
+							presentAssistantMessage(this).catch((err) => {
+								if (!this.abort) {
+									console.error(
+										"[presentAssistantMessage] Unhandled error at finalize tool_call:",
+										err,
+									)
+								}
+							})
 						} else if (toolUseIndex !== undefined) {
 							// finalizeStreamingToolCall returned null (malformed JSON or missing args)
 							// We still need to mark the tool as non-partial so it gets executed
@@ -3230,7 +3296,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 							this.userMessageContentReady = false
 
 							// Present the tool call - validation will handle missing params
-							presentAssistantMessage(this)
+							presentAssistantMessage(this).catch((err) => {
+								if (!this.abort) {
+									console.error(
+										"[presentAssistantMessage] Unhandled error at finalize tool_call (fallback):",
+										err,
+									)
+								}
+							})
 						}
 					}
 				}
@@ -3429,7 +3502,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 					// If there is content to update then it will complete and
 					// update `this.userMessageContentReady` to true, which we
 					// `pWaitFor` before making the next request.
-					presentAssistantMessage(this)
+					presentAssistantMessage(this).catch((err) => {
+						if (!this.abort) {
+							console.error("[presentAssistantMessage] Unhandled error at partial blocks:", err)
+						}
+					})
 				}
 
 				if (hasTextContent || hasToolUses) {
@@ -4189,6 +4266,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 						`Retry attempt ${retryAttempt + 1}/${MAX_CONTEXT_WINDOW_RETRIES}. ` +
 						`Attempting automatic truncation...`,
 				)
+				warn("TASK", "Context window exceeded", { retryAttempt, modelId: this.api.getModel().id })
 				await this.handleContextWindowExceededError()
 				// Retry the request after handling the context window error
 				yield* this.attemptApiRequest(retryAttempt + 1)

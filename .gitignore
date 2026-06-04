@@ -46,12 +46,18 @@ logs
 .idea/
 .qodo/
 .vercel
-.roo/mcp.json
-
+.roo/
 # Qdrant
 qdrant_storage/
 
 # Architect plans
 plans/
 
+# Reports directory (never commit)
+OTCHETY/
+
 roo-cli-*.tar.gz*
+releases/
+src/core/tools/ref/transform.ts
+OTCHETY/
+releases/
