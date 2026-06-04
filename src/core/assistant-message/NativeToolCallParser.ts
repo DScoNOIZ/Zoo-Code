@@ -1,9 +1,12 @@
 import { parseJSON } from "partial-json"
 
+import { info, warn, error } from "../tools/ref/superDebug"
+
 import { type ToolName, toolNames, type FileEntry } from "@roo-code/types"
 import { customToolRegistry } from "@roo-code/core"
 
 import {
+	type ContentRefParams,
 	type ToolUse,
 	type McpToolUse,
 	type ToolParamName,
@@ -283,6 +286,7 @@ export class NativeToolCallParser {
 		} catch {
 			// Even partial-json-parser can fail on severely malformed JSON
 			// Return null and wait for next chunk
+			warn("PARSER", "Partial JSON parse failed", { id })
 			return null
 		}
 	}
@@ -381,6 +385,8 @@ export class NativeToolCallParser {
 		// NOTE: For streaming partial updates, we MUST populate params even for complex types
 		// because tool.handlePartial() methods rely on params to show UI updates.
 		const params: Partial<Record<ToolParamName, string>> = {}
+
+		info("PARSER", "Partial tool use", { name, partial })
 
 		for (const [key, value] of Object.entries(partialArgs)) {
 			if (toolParamNames.includes(key as ToolParamName)) {
@@ -641,12 +647,16 @@ export class NativeToolCallParser {
 				break
 		}
 
+		// CRT: extract refMeta from partial args
+		const partialRefMeta = parseRefMeta(partialArgs)
+
 		const result: ToolUse = {
 			type: "tool_use" as const,
 			name,
 			params,
 			partial,
 			nativeArgs,
+			refMeta: partialRefMeta,
 		}
 
 		// Preserve original name for API history when an alias was used
@@ -691,6 +701,7 @@ export class NativeToolCallParser {
 
 		// Validate tool name (after alias resolution).
 		if (!toolNames.includes(resolvedName as ToolName) && !customToolRegistry.has(resolvedName)) {
+			warn("PARSER", "Invalid tool name", { name: toolCall.name, resolved: resolvedName })
 			console.error(`Invalid tool name: ${toolCall.name} (resolved: ${resolvedName})`)
 			console.error(`Valid tool names:`, toolNames)
 			return null
@@ -1004,12 +1015,19 @@ export class NativeToolCallParser {
 				)
 			}
 
+			// CRT: extract refMeta from parsed args
+			const refMeta = parseRefMeta(args)
+			if (refMeta) {
+				info("PARSER", "refMeta extracted", { refMeta })
+			}
+
 			const result: ToolUse<TName> = {
 				type: "tool_use" as const,
 				name: resolvedName,
 				params,
 				partial: false, // Native tool calls are always complete when yielded
 				nativeArgs,
+				refMeta,
 			}
 
 			// Preserve original name for API history when an alias was used
@@ -1022,8 +1040,14 @@ export class NativeToolCallParser {
 				result.usedLegacyFormat = true
 			}
 
+			info("PARSER", "Tool call parsed", { name: resolvedName, args: toolCall.arguments })
+
 			return result
 		} catch (error) {
+			error("PARSER", "Failed to parse tool call", {
+				error: error instanceof Error ? error.message : String(error),
+			})
+
 			console.error(
 				`Failed to parse tool call arguments: ${error instanceof Error ? error.message : String(error)}`,
 			)
@@ -1070,8 +1094,49 @@ export class NativeToolCallParser {
 
 			return result
 		} catch (error) {
+			error("PARSER", "Failed to parse dynamic MCP tool", {
+				error: error instanceof Error ? error.message : String(error),
+			})
 			console.error(`Failed to parse dynamic MCP tool:`, error)
 			return null
 		}
 	}
+}
+
+function parseRefMeta(args: any): ContentRefParams | undefined {
+	if (!args || (!args.ref && !args.multi_ref && !args.transform)) {
+		return undefined
+	}
+
+	let ref = args.ref
+	let multi_ref = args.multi_ref
+	let transform = args.transform
+
+	if (typeof ref === "string") {
+		try {
+			ref = JSON.parse(ref)
+		} catch (e) {
+			// Keep original string if parsing fails
+		}
+	}
+	if (typeof multi_ref === "string") {
+		try {
+			multi_ref = JSON.parse(multi_ref)
+		} catch (e) {
+			// Keep original if parsing fails
+		}
+	}
+	if (typeof transform === "string") {
+		try {
+			transform = JSON.parse(transform)
+		} catch (e) {
+			// Keep original if parsing fails
+		}
+	}
+
+	return {
+		ref,
+		multi_ref,
+		transform,
+	} as ContentRefParams
 }

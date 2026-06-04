@@ -54,4 +54,7 @@ qdrant_storage/
 # Architect plans
 plans/
 
+# Reports directory (never commit)
+OTCHETY/
+
 roo-cli-*.tar.gz*
