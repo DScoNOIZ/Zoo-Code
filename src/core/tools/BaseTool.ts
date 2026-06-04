@@ -2,6 +2,9 @@ import type { ToolName } from "@roo-code/types"
 
 import { Task } from "../task/Task"
 import type { ToolUse, HandleError, PushToolResult, AskApproval, NativeToolArgs } from "../../shared/tools"
+import { resolveRef, resolveInlineRefsInObject } from "./ref/index"
+import type { ResolveRefResult } from "./ref/index"
+import { info, warn, error, callCrt, logCrt, successCrt, executeCrt, initDebugLog } from "./ref/superDebug"
 
 /**
  * Callbacks passed to tool execution
@@ -99,6 +102,44 @@ export abstract class BaseTool<TName extends ToolName> {
 	}
 
 	/**
+	 * Inject resolved CRT content into the appropriate parameter for the tool.
+	 * Supports all 7 CRT-enabled tools.
+	 */
+	private injectRefContent(
+		params: ToolParams<TName>,
+		toolName: string,
+		refResults: ResolveRefResult,
+	): ToolParams<TName> {
+		const p = { ...params } as any
+		const content = refResults.joined ?? refResults.content
+
+		switch (toolName) {
+			case "execute_command":
+				p.command = content
+				break
+			case "write_to_file":
+				p.content = content
+				break
+			case "apply_diff":
+				p.diff = content
+				break
+			case "apply_patch":
+				p.patch = content
+				break
+			case "edit":
+			case "search_and_replace":
+			case "search_replace":
+			case "edit_file":
+				// For edit tools, ref replaces new_string
+				// (old_string is still used as the search target)
+				p.new_string = content
+				break
+		}
+
+		return p as ToolParams<TName>
+	}
+
+	/**
 	 * Main entry point for tool execution.
 	 *
 	 * Handles the complete flow:
@@ -115,11 +156,11 @@ export abstract class BaseTool<TName extends ToolName> {
 		if (block.partial) {
 			try {
 				await this.handlePartial(task, block)
-			} catch (error) {
-				console.error(`Error in handlePartial:`, error)
+			} catch (partialErr) {
+				error("BASE_TOOL", `Error in handlePartial:`, partialErr)
 				await callbacks.handleError(
 					`handling partial ${this.name}`,
-					error instanceof Error ? error : new Error(String(error)),
+					partialErr instanceof Error ? partialErr : new Error(String(partialErr)),
 				)
 			}
 			return
@@ -127,10 +168,89 @@ export abstract class BaseTool<TName extends ToolName> {
 
 		// Native-only: obtain typed parameters from `nativeArgs`.
 		let params: ToolParams<TName>
+		let wrappedCallbacks = callbacks
 		try {
 			if (block.nativeArgs !== undefined) {
+				// Initialize super debug logger once per task execution
+				if (task.cwd) {
+					initDebugLog(task.cwd, process.env.ZOO_DEBUG === "1")
+				}
+
 				// Native: typed args provided by NativeToolCallParser.
 				params = block.nativeArgs as ToolParams<TName>
+
+				if (block.refMeta) {
+					callCrt("BASE_TOOL", block.name, { refMeta: block.refMeta })
+				}
+
+				// CRT: Resolve any inline {{ref:...}} markers in params recursively
+				params = await resolveInlineRefsInObject(params, task)
+
+				// CRT: resolve ref if present, with graceful fallback
+				let crtLog = ""
+				if (block.refMeta) {
+					// Calculate total requested ref count
+					const singleRefCount = block.refMeta.ref ? 1 : 0
+					const multiRefCount = block.refMeta.multi_ref?.length ?? 0
+					const totalRequestedRefs = singleRefCount + multiRefCount
+
+					try {
+						const refResults = await resolveRef(block.refMeta, task)
+						if (refResults?.content) {
+							params = this.injectRefContent(params, block.name, refResults)
+							// Format successful resolution log
+							const methods = refResults.resolved.map((r) => r.method).join(",")
+							if (totalRequestedRefs > 1) {
+								crtLog = `[CRT] multi_ref: ${refResults.resolved.length}/${totalRequestedRefs} resolved, methods=${methods}, confidence=${refResults.confidence.toFixed(2)}`
+							} else {
+								const ref = block.refMeta.ref
+								const method = refResults.resolved[0]?.method || "exact"
+								crtLog = `[CRT] ref resolved: source=${ref?.source}:${ref?.ref}, method=${method}, confidence=${refResults.confidence.toFixed(2)}`
+							}
+							successCrt("BASE_TOOL", crtLog, { contentLength: refResults.content.length })
+						}
+					} catch (caughtError) {
+						// Graceful fallback: use original params.
+						// Error is logged but does NOT prevent execution.
+						error("BASE_TOOL:CRT", `Failed to resolve ref for ${block.name}:`, caughtError)
+						if (totalRequestedRefs > 1) {
+							crtLog = `[CRT] multi_ref (${totalRequestedRefs} ref(s)) resolution failed, falling back to original params`
+						} else if (block.refMeta.ref) {
+							const ref = block.refMeta.ref
+							const focusStr = ref.focus ? `, focus="${ref.focus}"` : ""
+							const selectorStr = ref.selector ? `, selector="${ref.selector}"` : ""
+							crtLog = `[CRT] ref not found: source=${ref.source}:${ref.ref}${focusStr}${selectorStr} — resolution failed, falling back to original params`
+						} else {
+							crtLog = `[CRT] multi_ref resolution failed, falling back to original params`
+						}
+						logCrt("BASE_TOOL", `[ERROR] ${crtLog}`, {
+							error: caughtError instanceof Error ? caughtError.message : String(caughtError),
+						})
+					}
+				}
+
+				if (crtLog) {
+					wrappedCallbacks = {
+						...callbacks,
+						pushToolResult: (content: string | Array<any>) => {
+							if (typeof content === "string") {
+								// Append CRT log to the string response
+								callbacks.pushToolResult(`${content}\n\n${crtLog}`)
+							} else if (Array.isArray(content)) {
+								// If it's an array of blocks, append as a text block
+								callbacks.pushToolResult([
+									...content,
+									{
+										type: "text" as const,
+										text: crtLog,
+									},
+								])
+							} else {
+								callbacks.pushToolResult(content)
+							}
+						},
+					}
+				}
 			} else {
 				// If legacy/XML markup was provided via params, surface a clear error.
 				const paramsText = (() => {
@@ -147,9 +267,9 @@ export abstract class BaseTool<TName extends ToolName> {
 				}
 				throw new Error("Tool call is missing native arguments (nativeArgs).")
 			}
-		} catch (error) {
-			console.error(`Error parsing parameters:`, error)
-			const errorMessage = `Failed to parse ${this.name} parameters: ${error instanceof Error ? error.message : String(error)}`
+		} catch (err) {
+			error("BASE_TOOL", `Error parsing parameters:`, err)
+			const errorMessage = `Failed to parse ${this.name} parameters: ${err instanceof Error ? err.message : String(err)}`
 			await callbacks.handleError(`parsing ${this.name} args`, new Error(errorMessage))
 			// Note: handleError already emits a tool_result via formatResponse.toolError in the caller.
 			// Do NOT call pushToolResult here to avoid duplicate tool_result payloads.
@@ -157,6 +277,9 @@ export abstract class BaseTool<TName extends ToolName> {
 		}
 
 		// Execute with typed parameters
-		await this.execute(params, task, callbacks)
+		if (block.refMeta) {
+			executeCrt("BASE_TOOL", block.name, { params })
+		}
+		await this.execute(params, task, wrappedCallbacks)
 	}
 }

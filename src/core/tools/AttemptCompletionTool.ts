@@ -40,8 +40,10 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
 		const { result } = params
 		const { handleError, pushToolResult, askFinishSubTaskApproval } = callbacks
 
-		// Prevent attempt_completion if any tool failed in the current turn
-		if (task.didToolFailInCurrentTurn) {
+		// Prevent attempt_completion if any tool failed in the current turn.
+		// Subtask delegation (parentTaskId) is exempt — the subtask is legitimately
+		// finishing its assigned work, not trying to "escape" from a failure.
+		if (task.didToolFailInCurrentTurn && !task.parentTaskId) {
 			const errorMsg = t("common:errors.attempt_completion_tool_failed")
 
 			await task.say("error", errorMsg)
@@ -86,20 +88,23 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
 				// to prevent duplicate tool_results when user revisits from history
 				const provider = task.providerRef.deref() as DelegationProvider | undefined
 				if (provider) {
-					let historyLookupTaskId = task.taskId
 					try {
 						const { historyItem } = await provider.getTaskWithId(task.taskId)
 						const status = historyItem?.status
 
 						if (status === "completed") {
-							// Subtask already completed - skip delegation flow entirely
-							// Fall through to normal completion ask flow below (outside this if block)
-							// This shows the user the completion result and waits for acceptance
-							// without injecting another tool_result to the parent
+							// Subtask already completed - emit task completed and return
+							// without showing completion_result ask again.
+							// This prevents infinite loop when user revisits a completed subtask from history:
+							// the subtask shows completion_result → user accepts → attempt_completion runs again
+							// → delegation flow attempts parent reopen → parent already resumed → loops forever.
+							this.emitTaskCompleted(task)
+							return
 						} else if (status === "active") {
-							historyLookupTaskId = task.parentTaskId
+							// Verify parent still awaits this child before asking the user.
+							// If parent detached (cancelled/resumed), skip delegation to avoid
+							// asking the user to return to a task no longer waiting for us.
 							const { historyItem: parentHistory } = await provider.getTaskWithId(task.parentTaskId)
-
 							if (
 								parentHistory?.status === "delegated" &&
 								parentHistory?.awaitingChildId === task.taskId
@@ -116,13 +121,15 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
 								}
 								if (delegation !== "continue") return
 							} else {
-								// Parent already detached, such as when the user cancelled this child.
-								// Fall through to the normal completion ask flow.
+								console.warn(
+									`[AttemptCompletionTool] Parent ${task.parentTaskId} no longer awaiting child ${task.taskId} ` +
+										`(status=${parentHistory?.status}, awaitingChildId=${parentHistory?.awaitingChildId}). ` +
+										`Skipping delegation. Task completed but parent NOT resumed.`,
+								)
+								// Fall through to normal completion ask flow
 							}
 						} else {
 							// Unexpected status (undefined or "delegated") - log error and skip delegation
-							// undefined indicates a bug in status persistence during child creation
-							// "delegated" would mean this child has its own grandchild pending (shouldn't reach attempt_completion)
 							console.error(
 								`[AttemptCompletionTool] Unexpected child task status "${status}" for task ${task.taskId}. ` +
 									`Expected "active" or "completed". Skipping delegation to prevent data corruption.`,
@@ -132,7 +139,7 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
 					} catch (err) {
 						// If we can't get the history, log error and skip delegation
 						console.error(
-							`[AttemptCompletionTool] Failed to get history for task ${historyLookupTaskId}: ${(err as Error)?.message ?? String(err)}. ` +
+							`[AttemptCompletionTool] Failed to get history for task ${task.taskId}: ${(err as Error)?.message ?? String(err)}. ` +
 								`Skipping delegation.`,
 						)
 						// Fall through to normal completion ask flow
@@ -185,6 +192,10 @@ export class AttemptCompletionTool extends BaseTool<"attempt_completion"> {
 		})
 
 		if (didReopen === false) {
+			console.warn(
+				`[AttemptCompletionTool] Parent ${task.parentTaskId} reopen failed for child ${task.taskId}. ` +
+					`Task completed but parent NOT resumed. User can manually resume.`,
+			)
 			return "continue"
 		}
 
