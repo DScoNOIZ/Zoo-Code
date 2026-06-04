@@ -58,3 +58,5 @@ plans/
 OTCHETY/
 
 roo-cli-*.tar.gz*
+# Release screenshots (never commit)
+releases/
