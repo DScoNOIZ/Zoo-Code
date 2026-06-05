@@ -167,7 +167,7 @@ export async function loadRequiredLanguageParsers(filesToParse: string[], source
 				language = await loadLanguage("php", sourceDirectory)
 				query = new Query(language, phpQuery)
 				break
-			case "swift":
+			case "swift": {
 				language = await loadLanguage("swift", sourceDirectory)
 				query = new Query(language, swiftQuery)
 				// Pre-warm WASM JIT — first query.captures() for 3.1MB Swift grammar
@@ -177,6 +177,7 @@ export async function loadRequiredLanguageParsers(filesToParse: string[], source
 				const warmupMs = await warmUpWasmJit(language, swiftQuery)
 				console.log(`[tree-sitter] Swift WASM JIT warmup: ${warmupMs.toFixed(0)}ms`)
 				break
+			}
 			case "kt":
 			case "kts":
 				language = await loadLanguage("kotlin", sourceDirectory)
