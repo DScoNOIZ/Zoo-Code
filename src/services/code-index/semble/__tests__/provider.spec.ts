@@ -7,8 +7,11 @@ import { SEMBLE_DEFAULTS } from "../types"
 // Mock SembleCLI - use a shared mock instance
 const sharedMockCli = {
 	checkInstalled: vi.fn(),
+	checkModel: vi.fn(),
 	search: vi.fn(),
 	findRelated: vi.fn(),
+	verifyModelFiles: vi.fn(),
+	clearModelCache: vi.fn(),
 }
 
 vi.mock("../semble-cli", () => ({
@@ -19,6 +22,14 @@ vi.mock("../semble-cli", () => ({
 vi.mock("../semble-downloader", () => ({
 	isSembleSupportedPlatform: vi.fn().mockReturnValue(true),
 	downloadSemble: vi.fn().mockResolvedValue("/mock/storage/semble/semble"),
+}))
+
+// Mock i18n
+vi.mock("../../../../i18n", () => ({
+	t: (key: string, _params?: Record<string, any>) => {
+		// Return the key for verification — tests check that correct keys are used
+		return key
+	},
 }))
 
 // Mock TelemetryService
@@ -49,6 +60,11 @@ describe("SembleProvider", () => {
 		vi.clearAllMocks()
 		;(isSembleSupportedPlatform as any).mockReturnValue(true)
 		;(downloadSemble as any).mockResolvedValue("/mock/storage/semble/semble")
+		// Default: checkInstalled and checkModel both succeed
+		sharedMockCli.checkInstalled.mockResolvedValue({ installed: true })
+		sharedMockCli.checkModel.mockResolvedValue({ installed: true })
+		sharedMockCli.verifyModelFiles.mockReturnValue({ valid: true })
+		sharedMockCli.clearModelCache.mockReturnValue({ cleared: true })
 
 		mockStateManager = {
 			setSystemState: vi.fn(),
@@ -80,16 +96,11 @@ describe("SembleProvider", () => {
 
 	describe("initialize", () => {
 		it("should auto-download and set state to Indexed when semble works", async () => {
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
-
 			await provider.initialize()
 
 			expect(downloadSemble).toHaveBeenCalledWith("/mock/storage")
 			expect(provider.state).toBe("Indexed")
-			expect(mockStateManager.setSystemState).toHaveBeenCalledWith(
-				"Indexed",
-				"Semble is ready. Searches index on-the-fly.",
-			)
+			expect(mockStateManager.setSystemState).toHaveBeenCalledWith("Indexed", "embeddings:semble.ready")
 		})
 
 		it("should set state to Error when platform is unsupported", async () => {
@@ -131,9 +142,24 @@ describe("SembleProvider", () => {
 			)
 		})
 
-		it("should not re-initialize if already initialized", async () => {
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
+		it("should set state to Error when model check fails (missing model weights)", async () => {
+			mockCli.checkModel.mockResolvedValue({
+				installed: false,
+				error: "Could not find expected model files",
+			})
 
+			await provider.initialize()
+
+			expect(provider.state).toBe("Error")
+			expect(mockStateManager.setSystemState).toHaveBeenCalledWith(
+				"Error",
+				expect.stringContaining("embeddings:semble.downloadFailed"),
+			)
+			// checkInstalled succeeded but checkModel failed
+			expect(mockCli.checkInstalled).toHaveBeenCalled()
+		})
+
+		it("should not re-initialize if already initialized", async () => {
 			await provider.initialize()
 			await provider.initialize()
 
@@ -143,8 +169,6 @@ describe("SembleProvider", () => {
 
 	describe("startIndexing", () => {
 		it("should initialize if not already initialized", async () => {
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
-
 			await provider.startIndexing()
 
 			expect(provider.state).toBe("Indexed")
@@ -160,8 +184,6 @@ describe("SembleProvider", () => {
 		})
 
 		it("should mark as Indexed when already initialized", async () => {
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
-
 			await provider.initialize()
 			await provider.startIndexing()
 
@@ -179,7 +201,6 @@ describe("SembleProvider", () => {
 
 	describe("searchIndex", () => {
 		beforeEach(async () => {
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
 			await provider.initialize()
 		})
 
@@ -396,12 +417,10 @@ describe("SembleProvider", () => {
 			expect(results).toHaveLength(2)
 		})
 
-		it("should return empty array on search error and log telemetry", async () => {
+		it("should throw on search error and log telemetry", async () => {
 			mockCli.search.mockRejectedValue(new Error("Search failed"))
 
-			const results = await provider.searchIndex("test")
-
-			expect(results).toEqual([])
+			await expect(provider.searchIndex("test")).rejects.toThrow("Semble search failed")
 			expect(TelemetryService.instance.captureEvent).toHaveBeenCalledWith(
 				TelemetryEventName.CODE_INDEX_ERROR,
 				expect.objectContaining({
@@ -422,22 +441,17 @@ describe("SembleProvider", () => {
 
 	describe("clearIndexData", () => {
 		it("should reset state to Standby", async () => {
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
 			await provider.initialize()
 
 			await provider.clearIndexData()
 
 			expect(provider.state).toBe("Standby")
-			expect(mockStateManager.setSystemState).toHaveBeenCalledWith(
-				"Standby",
-				"Semble provider reset. On-disk cache remains until next rebuild.",
-			)
+			expect(mockStateManager.setSystemState).toHaveBeenCalledWith("Standby", "embeddings:semble.providerReset")
 		})
 	})
 
 	describe("dispose", () => {
 		it("should reset initialization state", async () => {
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
 			await provider.initialize()
 
 			provider.dispose()
@@ -450,7 +464,6 @@ describe("SembleProvider", () => {
 
 	describe("_convertResults edge cases", () => {
 		beforeEach(async () => {
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
 			await provider.initialize()
 		})
 
@@ -633,7 +646,6 @@ describe("SembleProvider", () => {
 				topK: 5,
 			})
 
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
 			await customProvider.initialize()
 			mockCli.search.mockResolvedValue([])
 
@@ -650,7 +662,6 @@ describe("SembleProvider", () => {
 				content: "all",
 			})
 
-			mockCli.checkInstalled.mockResolvedValue({ installed: true })
 			await customProvider.initialize()
 			mockCli.search.mockResolvedValue([])
 

@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "{{attempts}}回試行しましたが、埋め込みの作成に失敗しました",
 	"textExceedsTokenLimit": "インデックス{{index}}のテキストが最大トークン制限を超えています（{{itemTokens}}> {{maxTokens}}）。スキップします。",
 	"rateLimitRetry": "レート制限に達しました。{{delayMs}}ミリ秒後に再試行します（試行{{attempt}}/{{maxRetries}}）",
+	"indexingDisabled": "コードインデックスが無効になっています",
+	"standbyReady": "準備完了。",
 	"bedrock": {
 		"invalidResponseFormat": "Amazon Bedrockからの無効な応答形式",
 		"invalidCredentials": "無効なAWS認証情報です。AWSの設定を確認してください。",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "プロバイダー '{{provider}}' のモデル '{{modelId}}' の埋め込み次元を決定できませんでした。モデルプロファイルまたは設定を確認してください。",
 		"qdrantUrlMissing": "ベクターストア作成のためのQdrant URLがありません",
 		"codeIndexingNotConfigured": "サービスを作成できません: コードインデックスが正しく設定されていません"
+	},
+	"semble": {
+		"downloadingBinary": "semble バイナリをダウンロード中...",
+		"downloadingModel": "埋め込みモデルをダウンロード中...",
+		"verifyingModel": "埋め込みモデルを検証中...",
+		"clearingCorruptedCache": "破損したモデルキャッシュをクリア中...",
+		"reDownloadingModel": "埋め込みモデルを再ダウンロード中...",
+		"repairingModel": "埋め込みモデルを修復中...",
+		"ready": "Sembleの準備ができました。その場でインデックスを検索します。",
+		"providerReset": "Sembleプロバイダーがリセットされました。オンディスクキャッシュは次回の再構築まで保持されます。",
+		"modelRepaired": "モデルが破損していましたが、正常に再ダウンロードされました。",
+		"downloadFailed": "Semble モデルのダウンロードに失敗しました: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "インデックス作成に失敗しました：コードブロックが正常にインデックス化されませんでした。これは通常、エンベッダーの設定問題を示しています。",

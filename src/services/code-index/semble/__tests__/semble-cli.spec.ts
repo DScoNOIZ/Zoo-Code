@@ -86,6 +86,44 @@ describe("SembleCLI", () => {
 		})
 	})
 
+	describe("checkModel", () => {
+		it("should return installed: true when smoke search succeeds", async () => {
+			mockSpawn.mockReturnValueOnce(createMockProcess('{"query":"health","results":[]}', "", 0))
+
+			const result = await cli.checkModel()
+
+			expect(result).toEqual({ installed: true })
+			expect(mockSpawn).toHaveBeenCalledWith(
+				"semble",
+				["search", "health", ".", "-k", "1"],
+				expect.objectContaining({ shell: false }),
+			)
+		})
+
+		it("should return installed: false when model search fails (no model files)", async () => {
+			mockSpawn.mockReturnValueOnce(
+				createMockProcess(
+					"Error: Could not find expected model files",
+					"Error: Could not find expected model files",
+					1,
+				),
+			)
+
+			const result = await cli.checkModel()
+
+			expect(result.installed).toBe(false)
+			expect(result.error).toContain("Could not find expected model files")
+		})
+
+		it("should return installed: false on spawn timeout or error", async () => {
+			mockSpawn.mockReturnValueOnce(createErrorProcess("ETIMEDOUT"))
+
+			const result = await cli.checkModel()
+
+			expect(result.installed).toBe(false)
+		})
+	})
+
 	describe("search", () => {
 		it("should spawn with array args (no shell)", async () => {
 			const jsonResponse = JSON.stringify({ query: "auth", results: [] })

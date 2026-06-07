@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "No se pudieron crear las incrustaciones después de {{attempts}} intentos",
 	"textExceedsTokenLimit": "El texto en el índice {{index}} supera el límite máximo de tokens ({{itemTokens}} > {{maxTokens}}). Omitiendo.",
 	"rateLimitRetry": "Límite de velocidad alcanzado, reintentando en {{delayMs}}ms (intento {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "La indexación de código está desactivada",
+	"standbyReady": "Listo.",
 	"bedrock": {
 		"invalidResponseFormat": "Formato de respuesta no válido de Amazon Bedrock",
 		"invalidCredentials": "Credenciales de AWS no válidas. Por favor, verifica tu configuración de AWS.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "No se pudo determinar la dimensión del vector para el modelo '{{modelId}}' con el proveedor '{{provider}}'. Verifica los perfiles del modelo o la configuración.",
 		"qdrantUrlMissing": "Falta la URL de Qdrant para crear el almacén de vectores",
 		"codeIndexingNotConfigured": "No se pueden crear servicios: La indexación de código no está configurada correctamente"
+	},
+	"semble": {
+		"downloadingBinary": "Descargando el binario de semble...",
+		"downloadingModel": "Descargando el modelo de incrustación...",
+		"verifyingModel": "Verificando el modelo de incrustación...",
+		"clearingCorruptedCache": "Limpiando la caché del modelo corrupto...",
+		"reDownloadingModel": "Re-descargando el modelo de incrustación...",
+		"repairingModel": "Reparando el modelo de incrustación...",
+		"ready": "Semble está listo. Busca índices sobre la marcha.",
+		"providerReset": "Reinicio del proveedor de Semble. La caché en disco permanece hasta la próxima reconstrucción.",
+		"modelRepaired": "El modelo estaba corrupto y se ha vuelto a descargar correctamente.",
+		"downloadFailed": "Falló la descarga del modelo Semble: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Indexación fallida: No se indexaron exitosamente bloques de código. Esto usualmente indica un problema de configuración del incrustador.",

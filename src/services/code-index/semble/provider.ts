@@ -9,6 +9,14 @@ import { downloadSemble, isSembleSupportedPlatform } from "./semble-downloader"
 import { ISembleProvider, SembleConfig, SembleContentType, SembleSearchResult, SEMBLE_DEFAULTS } from "./types"
 import { TelemetryService } from "@roo-code/telemetry"
 import { TelemetryEventName } from "@roo-code/types"
+import { t } from "../../../i18n"
+
+/**
+ * Result from _ensureModelReady — either success or failure with error details.
+ */
+type ModelReadinessResult =
+	| { success: true; wasRepaired?: boolean }
+	| { success: false; error: string; wasRepaired: boolean }
 
 /**
  * Orchestrates code search via the semble CLI.
@@ -51,16 +59,11 @@ export class SembleProvider implements ISembleProvider {
 		return this._state
 	}
 
-	/**
-	 * Initializes the provider: downloads semble, then validates it works.
-	 * Uses an _initPromise to prevent concurrent initialization races.
-	 */
 	async initialize(): Promise<void> {
 		if (this._isInitialized) {
 			return
 		}
 
-		// If initialization is already in progress, wait for it
 		if (this._initPromise) {
 			return this._initPromise
 		}
@@ -73,11 +76,7 @@ export class SembleProvider implements ISembleProvider {
 		}
 	}
 
-	/**
-	 * Internal initialization logic, called only once via _initPromise guard.
-	 */
 	private async _doInitialize(): Promise<void> {
-		// Check platform support
 		if (!isSembleSupportedPlatform()) {
 			this._state = "Error"
 			this.stateManager.setSystemState(
@@ -88,9 +87,8 @@ export class SembleProvider implements ISembleProvider {
 			return
 		}
 
-		// Download semble binary
 		try {
-			this.stateManager.setSystemState("Indexing", "Downloading semble binary...")
+			this.stateManager.setSystemState("Indexing", t("embeddings:semble.downloadingBinary"))
 			const storageDir = this.context.globalStorageUri.fsPath
 			const binaryPath = await downloadSemble(storageDir)
 			if (!binaryPath) {
@@ -104,7 +102,6 @@ export class SembleProvider implements ISembleProvider {
 			return
 		}
 
-		// Verify the binary works
 		const checkResult = await this.cli.checkInstalled()
 
 		if (!checkResult.installed) {
@@ -115,19 +112,120 @@ export class SembleProvider implements ISembleProvider {
 			return
 		}
 
-		console.log("[SembleProvider] Semble found and ready.")
+		console.log("[SembleProvider] Semble binary found and ready. Verifying embedding model...")
 
-		// Semble indexes on-the-fly, so we mark as "Indexed" (ready for search)
+		const modelResult = await this._ensureModelReady()
+
+		if (!modelResult.success) {
+			this._state = "Error"
+			this.stateManager.setSystemState(
+				"Error",
+				t("embeddings:semble.downloadFailed", { error: modelResult.error }),
+			)
+			console.error("[SembleProvider] Model check failed:", modelResult.error)
+			return
+		}
+
+		if (modelResult.wasRepaired) {
+			console.log("[SembleProvider] Model was corrupted and has been re-downloaded successfully.")
+		}
+
+		console.log("[SembleProvider] Embedding model verified and ready.")
+
 		this._state = "Indexed"
-		this.stateManager.setSystemState("Indexed", "Semble is ready. Searches index on-the-fly.")
+		this.stateManager.setSystemState("Indexed", t("embeddings:semble.ready"))
 
 		this._isInitialized = true
 	}
 
-	/**
-	 * Starts indexing. Since semble indexes on-the-fly with each search,
-	 * this just validates the installation and marks as ready.
-	 */
+	private async _ensureModelReady(): Promise<ModelReadinessResult> {
+		const fileCheck = this.cli.verifyModelFiles()
+
+		if (fileCheck.valid) {
+			this.stateManager.setSystemState("Indexing", t("embeddings:semble.verifyingModel"))
+			const smokeResult = await this.cli.checkModel()
+
+			if (smokeResult.installed) {
+				return { success: true }
+			}
+
+			const errorMsg = smokeResult.error || ""
+			if (errorMsg.toLowerCase().includes("timeout") || errorMsg.toLowerCase().includes("timed out")) {
+				console.warn(`[SembleProvider] Model smoke search timed out (transient): ${errorMsg}`)
+				return {
+					success: false,
+					error: `Model loading timed out. This is normal on first use. Please try again.`,
+					wasRepaired: false,
+				}
+			}
+
+			console.warn(`[SembleProvider] Model files exist but corrupted: ${errorMsg}`)
+		} else {
+			console.log(`[SembleProvider] Model files not found: ${fileCheck.error}`)
+		}
+
+		if (fileCheck.valid) {
+			console.log("[SembleProvider] Clearing corrupted model cache...")
+			this.stateManager.setSystemState("Indexing", t("embeddings:semble.clearingCorruptedCache"))
+
+			const clearResult = this.cli.clearModelCache()
+			if (!clearResult.cleared) {
+				return {
+					success: false,
+					error: `Failed to clear corrupted model cache: ${clearResult.error}`,
+					wasRepaired: false,
+				}
+			}
+		}
+
+		console.log("[SembleProvider] Downloading embedding model from HuggingFace...")
+		this.stateManager.setSystemState("Indexing", t("embeddings:semble.downloadingModel"))
+
+		try {
+			await this.cli.search("health", this.workspacePath, { topK: 1 })
+		} catch (error: any) {
+			const errorMsg = error?.message || String(error)
+
+			if (errorMsg.toLowerCase().includes("model") || errorMsg.toLowerCase().includes("download")) {
+				return {
+					success: false,
+					error: errorMsg,
+					wasRepaired: false,
+				}
+			}
+
+			console.warn(`[SembleProvider] Smoke search returned error (may be non-model related): ${errorMsg}`)
+		}
+
+		const verifyCheck = this.cli.verifyModelFiles()
+		if (!verifyCheck.valid) {
+			return {
+				success: false,
+				error: `Model download incomplete: ${verifyCheck.error}`,
+				wasRepaired: !fileCheck.valid,
+			}
+		}
+
+		const finalCheck = await this.cli.checkModel()
+		if (!finalCheck.installed) {
+			const errMsg = finalCheck.error || "verification failed"
+			if (errMsg.toLowerCase().includes("timeout") || errMsg.toLowerCase().includes("timed out")) {
+				return {
+					success: false,
+					error: `Model downloaded but loading timed out. Please try again.`,
+					wasRepaired: !fileCheck.valid,
+				}
+			}
+			return {
+				success: false,
+				error: errMsg,
+				wasRepaired: !fileCheck.valid,
+			}
+		}
+
+		return { success: true, wasRepaired: !fileCheck.valid }
+	}
+
 	async startIndexing(): Promise<void> {
 		if (!this._isInitialized) {
 			await this.initialize()
@@ -137,27 +235,14 @@ export class SembleProvider implements ISembleProvider {
 			return
 		}
 
-		// Semble indexes on-the-fly — no separate indexing step needed.
-		// Mark as indexed/ready.
 		this._state = "Indexed"
-		this.stateManager.setSystemState("Indexed", "Semble is ready. Searches index on-the-fly.")
+		this.stateManager.setSystemState("Indexed", t("embeddings:semble.ready"))
 	}
 
-	/**
-	 * Stops indexing (no-op — semble has no background indexing process).
-	 */
 	stopIndexing(): void {
 		// No-op: semble indexes on-the-fly per search call
 	}
 
-	/**
-	 * Searches the codebase using `semble search`.
-	 *
-	 * Always searches the full workspace root to avoid creating separate
-	 * Semble cache directories for each subdirectory. When directoryPrefix
-	 * is provided, results are filtered post-search to only include files
-	 * within that directory.
-	 */
 	async searchIndex(query: string, directoryPrefix?: string): Promise<VectorStoreSearchResult[]> {
 		if (!this._isInitialized) {
 			console.warn("[SembleProvider] searchIndex called before initialization")
@@ -169,38 +254,28 @@ export class SembleProvider implements ISembleProvider {
 		}
 
 		try {
-			// Always search the full workspace to maintain a single Semble cache.
-			// Semble creates a separate cache directory per path (SHA-256 of the
-			// resolved absolute path), so passing subdirectories would create
-			// redundant indexes and waste disk space.
-			console.log(`[SembleProvider] Searching in ${this.workspacePath}`)
-			const results = await this.cli.search(query, this.workspacePath, {
-				topK: this.config.topK,
-				content: this.config.content,
-			})
-
-			// Semble returns file paths relative to the search path (workspace root).
-			// We join against workspacePath to produce correct absolute paths.
-			let converted = this._convertResults(results, this.workspacePath)
-
-			// Filter results to the requested directory prefix, if any.
-			if (directoryPrefix) {
-				const normalizedPrefix = path.join(this.workspacePath, directoryPrefix).replace(/\\/g, "/")
-				converted = converted.filter((r) => {
-					const filePath = (r.payload?.filePath ?? "").replace(/\\/g, "/")
-					return filePath.startsWith(normalizedPrefix + "/") || filePath === normalizedPrefix
-				})
-				console.log(
-					`[SembleProvider] Filtered to "${directoryPrefix}": ${converted.length} of ${results.length} results`,
-				)
-			}
-
-			console.log(
-				`[SembleProvider] Search returned ${converted.length} results (raw: ${results.length}). Sample path: ${converted[0]?.payload?.filePath ?? "none"}`,
-			)
-			return converted
+			return await this._executeSearch(query, directoryPrefix)
 		} catch (error: any) {
 			const errorMessage = error?.message || String(error)
+
+			if (this._isModelCorruptionError(errorMessage)) {
+				console.warn(`[SembleProvider] Search failed due to model issue, attempting repair: ${errorMessage}`)
+
+				const repairResult = await this._repairModel()
+
+				if (repairResult.success) {
+					console.log("[SembleProvider] Model repaired successfully, retrying search...")
+					return await this._executeSearch(query, directoryPrefix)
+				} else {
+					console.error(`[SembleProvider] Model repair failed: ${repairResult.error}`)
+				}
+			} else if (
+				errorMessage.toLowerCase().includes("timeout") ||
+				errorMessage.toLowerCase().includes("timed out")
+			) {
+				console.warn(`[SembleProvider] Search timed out (transient): ${errorMessage}`)
+			}
+
 			console.error("[SembleProvider] Search failed:", errorMessage)
 
 			TelemetryService.instance.captureEvent(TelemetryEventName.CODE_INDEX_ERROR, {
@@ -209,42 +284,92 @@ export class SembleProvider implements ISembleProvider {
 				location: "SembleProvider.searchIndex",
 			})
 
-			return []
+			throw new Error(`Semble search failed: ${errorMessage}`)
 		}
 	}
 
-	/**
-	 * Clears index data. Semble manages its own cache at ~/Library/Caches/semble/
-	 * (or equivalent per-platform). This resets the provider state but does not
-	 * delete semble's on-disk cache — use `semble clear-cache` for that.
-	 */
-	async clearIndexData(): Promise<void> {
-		this._state = "Standby"
-		this.stateManager.setSystemState("Standby", "Semble provider reset. On-disk cache remains until next rebuild.")
+	private async _executeSearch(query: string, directoryPrefix?: string): Promise<VectorStoreSearchResult[]> {
+		console.log(`[SembleProvider] Searching in ${this.workspacePath}`)
+		const results = await this.cli.search(query, this.workspacePath, {
+			topK: this.config.topK,
+			content: this.config.content,
+		})
+
+		let converted = this._convertResults(results, this.workspacePath)
+
+		if (directoryPrefix) {
+			const normalizedPrefix = path.join(this.workspacePath, directoryPrefix).replace(/\\/g, "/")
+			converted = converted.filter((r) => {
+				const filePath = (r.payload?.filePath ?? "").replace(/\\/g, "/")
+				return filePath.startsWith(normalizedPrefix + "/") || filePath === normalizedPrefix
+			})
+			console.log(
+				`[SembleProvider] Filtered to "${directoryPrefix}": ${converted.length} of ${results.length} results`,
+			)
+		}
+
+		console.log(
+			`[SembleProvider] Search returned ${converted.length} results (raw: ${results.length}). Sample path: ${converted[0]?.payload?.filePath ?? "none"}`,
+		)
+		return converted
 	}
 
-	/**
-	 * Disposes resources.
-	 */
+	private async _repairModel(): Promise<{ success: boolean; error?: string }> {
+		try {
+			this.stateManager.setSystemState("Indexing", t("embeddings:semble.repairingModel"))
+			const clearResult = this.cli.clearModelCache()
+
+			if (!clearResult.cleared) {
+				return { success: false, error: clearResult.error || "Failed to clear model cache" }
+			}
+
+			this.stateManager.setSystemState("Indexing", t("embeddings:semble.reDownloadingModel"))
+			await this.cli.search("health", this.workspacePath, { topK: 1 })
+
+			const verifyCheck = this.cli.verifyModelFiles()
+			if (!verifyCheck.valid) {
+				return { success: false, error: `Re-download completed but files not found: ${verifyCheck.error}` }
+			}
+
+			const modelCheck = await this.cli.checkModel()
+			if (!modelCheck.installed) {
+				return { success: false, error: `Re-download completed but model not working: ${modelCheck.error}` }
+			}
+
+			return { success: true }
+		} catch (error: any) {
+			return { success: false, error: error?.message || String(error) }
+		}
+	}
+
+	private _isModelCorruptionError(errorMessage: string): boolean {
+		const lowerMsg = errorMessage.toLowerCase()
+
+		if (lowerMsg.includes("timeout") || lowerMsg.includes("timed out")) {
+			return false
+		}
+
+		const corruptionIndicators = [
+			"model corrupted",
+			"model files missing",
+			"could not find expected model",
+			"error while loading model",
+			"model not found",
+			"invalid model",
+		]
+		return corruptionIndicators.some((indicator) => lowerMsg.includes(indicator))
+	}
+
+	async clearIndexData(): Promise<void> {
+		this._state = "Standby"
+		this.stateManager.setSystemState("Standby", t("embeddings:semble.providerReset"))
+	}
+
 	dispose(): void {
 		this._isInitialized = false
 	}
 
-	// --- Private Helpers ---
-
-	/**
-	 * Converts Semble CLI results to Zoo's VectorStoreSearchResult format.
-	 *
-	 * Semble v0.3.0+ returns results in the format:
-	 *   { chunk: { content, file_path, start_line, end_line, language, location }, score }
-	 *
-	 * Note: semble returns file paths relative to the path it was invoked with.
-	 * We join against `basePath` (the actual path passed to semble) to produce
-	 * correct absolute paths for the rest of the pipeline.
-	 * Results with missing file paths or paths that escape the workspace are excluded.
-	 */
 	private _convertResults(results: SembleSearchResult[], basePath: string): VectorStoreSearchResult[] {
-		// Resolve basePath to an absolute canonical form for the traversal check.
 		const resolvedBase = path.resolve(basePath).replace(/\\/g, "/")
 
 		const converted: VectorStoreSearchResult[] = []
@@ -254,13 +379,10 @@ export class SembleProvider implements ISembleProvider {
 				continue
 			}
 
-			// Use path.join for the displayed path (preserves basePath format).
 			const filePath = path.join(basePath, r.chunk.file_path).replace(/\\/g, "/")
 
-			// Use path.resolve to normalize any ../ for the security check.
 			const resolvedFilePath = path.resolve(basePath, r.chunk.file_path).replace(/\\/g, "/")
 
-			// Guard against path traversal: reject file paths that resolve outside the workspace
 			if (!resolvedFilePath.startsWith(resolvedBase + "/") && resolvedFilePath !== resolvedBase) {
 				continue
 			}

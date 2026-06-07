@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "{{attempts}} denemeden sonra gömülmeler oluşturulamadı",
 	"textExceedsTokenLimit": "{{index}} dizinindeki metin maksimum jeton sınırını aşıyor ({{itemTokens}} > {{maxTokens}}). Atlanıyor.",
 	"rateLimitRetry": "Hız sınırına ulaşıldı, {{delayMs}}ms içinde yeniden deneniyor (deneme {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "Kod indeksleme devre dışı",
+	"standbyReady": "Hazır.",
 	"bedrock": {
 		"invalidResponseFormat": "Amazon Bedrock'tan geçersiz yanıt formatı",
 		"invalidCredentials": "Geçersiz AWS kimlik bilgileri. Lütfen AWS yapılandırmanızı kontrol edin.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "'{{provider}}' sağlayıcısı ile '{{modelId}}' modeli için vektör boyutu belirlenemedi. Model profillerini veya yapılandırmayı kontrol et.",
 		"qdrantUrlMissing": "Vektör deposu oluşturmak için Qdrant URL'si eksik",
 		"codeIndexingNotConfigured": "Hizmetler oluşturulamıyor: Kod indeksleme düzgün yapılandırılmamış"
+	},
+	"semble": {
+		"downloadingBinary": "Semble ikili dosyası indiriliyor...",
+		"downloadingModel": "Gömme modeli indiriliyor...",
+		"verifyingModel": "Gömme modeli doğrulanıyor...",
+		"clearingCorruptedCache": "Bozuk model önbelleği temizleniyor...",
+		"reDownloadingModel": "Gömme modeli yeniden indiriliyor...",
+		"repairingModel": "Gömme modeli onarılıyor...",
+		"ready": "Semble hazır. Anında indeks arar.",
+		"providerReset": "Semble sağlayıcısı sıfırlandı. Disk önbelleği sonraki yeniden yapılandırmaya kadar kalır.",
+		"modelRepaired": "Model bozuldu ve başarıyla yeniden indirildi.",
+		"downloadFailed": "Semble modeli indirme başarısız oldu: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "İndeksleme başarısız: Hiçbir kod bloğu başarıyla indekslenemedi. Bu genellikle bir embedder yapılandırma sorunu olduğunu gösterir.",

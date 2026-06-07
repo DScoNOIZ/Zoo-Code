@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "{{attempts}}번 시도 후 임베딩 생성 실패",
 	"textExceedsTokenLimit": "인덱스 {{index}}의 텍스트가 최대 토큰 제한({{itemTokens}} > {{maxTokens}})을 초과했습니다. 건너뜁니다.",
 	"rateLimitRetry": "속도 제한에 도달했습니다. {{delayMs}}ms 후에 다시 시도합니다(시도 {{attempt}}/{{maxRetries}}).",
+	"indexingDisabled": "코드 인덱싱이 비활성화되었습니다",
+	"standbyReady": "준비.",
 	"bedrock": {
 		"invalidResponseFormat": "Amazon Bedrock에서 잘못된 응답 형식",
 		"invalidCredentials": "잘못된 AWS 자격증명입니다. AWS 구성을 확인하세요.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "프로바이더 '{{provider}}'의 모델 '{{modelId}}'에 대한 벡터 차원을 결정할 수 없습니다. 모델 프로필 또는 구성을 확인하세요.",
 		"qdrantUrlMissing": "벡터 저장소 생성을 위한 Qdrant URL이 누락되었습니다",
 		"codeIndexingNotConfigured": "서비스를 생성할 수 없습니다: 코드 인덱싱이 올바르게 구성되지 않았습니다"
+	},
+	"semble": {
+		"downloadingBinary": "semble 바이너리 다운로드 중...",
+		"downloadingModel": "임베딩 모델 다운로드 중...",
+		"verifyingModel": "임베딩 모델 확인 중...",
+		"clearingCorruptedCache": "손상된 모델 캐시 정리 중...",
+		"reDownloadingModel": "임베딩 모델 재다운로드 중...",
+		"repairingModel": "임베딩 모델 복구 중...",
+		"ready": "Semble이 준비되었습니다. 즉시 인덱스를 검색합니다.",
+		"providerReset": "Semble 제공자가 재설정되었습니다. 디스크 캐시는 다음 재구축까지 유지됩니다.",
+		"modelRepaired": "모델이 손상되었으나 성공적으로 재다운로드되었습니다.",
+		"downloadFailed": "Semble 모델 다운로드 실패: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "인덱싱 실패: 코드 블록이 성공적으로 인덱싱되지 않았습니다. 이는 일반적으로 임베더 구성 문제를 나타냅니다.",

@@ -799,7 +799,7 @@ describe("CodeIndexManager - handleSettingsChange regression", () => {
 			await manager.handleSettingsChange()
 
 			expect(mockOrchestrator.stopIndexing).toHaveBeenCalled()
-			expect(mockStateManager.setSystemState).toHaveBeenCalledWith("Standby", "Code indexing is disabled")
+			expect(mockStateManager.setSystemState).toHaveBeenCalledWith("Standby", "indexingDisabled")
 		})
 	})
 })

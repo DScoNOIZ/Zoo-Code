@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "{{attempts}} प्रयासों के बाद एम्बेडिंग बनाने में विफल",
 	"textExceedsTokenLimit": "अनुक्रमणिका {{index}} पर पाठ अधिकतम टोकन सीमा ({{itemTokens}} > {{maxTokens}}) से अधिक है। छोड़ा जा रहा है।",
 	"rateLimitRetry": "दर सीमा समाप्त, {{delayMs}}ms में पुन: प्रयास किया जा रहा है (प्रयास {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "कोड इंडेक्सिंग अक्षम है",
+	"standbyReady": "तैयार।",
 	"bedrock": {
 		"invalidResponseFormat": "Amazon Bedrock से अमान्य प्रतिसाद प्रारूप",
 		"invalidCredentials": "अमान्य AWS क्रेडेंशियल्स। कृपया अपनी AWS कॉन्फ़िगरेशन जांचें।",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "प्रदाता '{{provider}}' के साथ मॉडल '{{modelId}}' के लिए वेक्टर आयाम निर्धारित नहीं कर सका। मॉडल प्रोफ़ाइल या कॉन्फ़िगरेशन की जांच करें।",
 		"qdrantUrlMissing": "वेक्टर स्टोर बनाने के लिए Qdrant URL गायब है",
 		"codeIndexingNotConfigured": "सेवाएं नहीं बना सकते: कोड इंडेक्सिंग ठीक से कॉन्फ़िगर नहीं है"
+	},
+	"semble": {
+		"downloadingBinary": "semble बाइनरी डाउनलोड हो रहा है...",
+		"downloadingModel": "एम्बेडिंग मॉडल डाउनलोड हो रहा है...",
+		"verifyingModel": "एम्बेडिंग मॉडल सत्यापित हो रहा है...",
+		"clearingCorruptedCache": "दूषित मॉडल कैश साफ़ किया जा रहा है...",
+		"reDownloadingModel": "एम्बेडिंग मॉडल पुनः डाउनलोड हो रहा है...",
+		"repairingModel": "एम्बेडिंग मॉडल की मरम्मत की जा रही है...",
+		"ready": "Semble तैयार है। ऑन-द-फ्लाई इंडेक्स खोजता है।",
+		"providerReset": "Semble प्रदाता रीसेट। डिस्क पर कैश अगले पुनर्निर्माण तक बना रहता है।",
+		"modelRepaired": "मॉडल दूषित हो गया था और सफलतापूर्वक पुनः डाउनलोड किया गया है।",
+		"downloadFailed": "Semble मॉडल डाउनलोड विफल: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "इंडेक्सिंग असफल: कोई भी कोड ब्लॉक सफलतापूर्वक इंडेक्स नहीं हुआ। यह आमतौर पर एम्बेडर कॉन्फ़िगरेशन समस्या को दर्शाता है।",

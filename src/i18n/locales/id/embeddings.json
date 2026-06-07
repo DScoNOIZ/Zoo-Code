@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "Gagal membuat embeddings setelah {{attempts}} percobaan",
 	"textExceedsTokenLimit": "Teks pada indeks {{index}} melebihi batas maksimum token ({{itemTokens}} > {{maxTokens}}). Dilewati.",
 	"rateLimitRetry": "Batas rate tercapai, mencoba lagi dalam {{delayMs}}ms (percobaan {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "Pengindeksan kode dinonaktifkan",
+	"standbyReady": "Siap.",
 	"bedrock": {
 		"invalidResponseFormat": "Format respons tidak valid dari Amazon Bedrock",
 		"invalidCredentials": "Kredensial AWS tidak valid. Harap periksa konfigurasi AWS Anda.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "Tidak dapat menentukan dimensi vektor untuk model '{{modelId}}' dengan penyedia '{{provider}}'. Periksa profil model atau konfigurasi.",
 		"qdrantUrlMissing": "URL Qdrant tidak ada untuk membuat penyimpanan vektor",
 		"codeIndexingNotConfigured": "Tidak dapat membuat layanan: Pengindeksan kode tidak dikonfigurasi dengan benar"
+	},
+	"semble": {
+		"downloadingBinary": "Mengunduh biner semble...",
+		"downloadingModel": "Mengunduh model embedding...",
+		"verifyingModel": "Memverifikasi model embedding...",
+		"clearingCorruptedCache": "Membersihkan cache model yang rusak...",
+		"reDownloadingModel": "Mengunduh ulang model embedding...",
+		"repairingModel": "Memperbaiki model embedding...",
+		"ready": "Semble siap. Mencari indeks dengan cepat.",
+		"providerReset": "Reset penyedia Semble. Cache pada disk tetap ada hingga pembangunan ulang berikutnya.",
+		"modelRepaired": "Model rusak dan telah berhasil diunduh ulang.",
+		"downloadFailed": "Unduhan model Semble gagal: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Pengindeksan gagal: Tidak ada blok kode yang berhasil diindeks. Ini biasanya menunjukkan masalah konfigurasi embedder.",

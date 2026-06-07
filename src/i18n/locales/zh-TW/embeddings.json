@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "嘗試 {{attempts}} 次後建立內嵌失敗",
 	"textExceedsTokenLimit": "索引 {{index}} 處的文字超過最大權杖限制 ({{itemTokens}} > {{maxTokens}})。正在略過。",
 	"rateLimitRetry": "已達到速率限制，將在 {{delayMs}} 毫秒後重試（嘗試次數 {{attempt}}/{{maxRetries}}）",
+	"indexingDisabled": "程式碼索引已停用",
+	"standbyReady": "就緒。",
 	"bedrock": {
 		"invalidResponseFormat": "Amazon Bedrock 傳回無效的回應格式",
 		"invalidCredentials": "AWS 認證無效。請檢查您的 AWS 設定。",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "無法確定提供商 '{{provider}}' 的模型 '{{modelId}}' 的向量維度。請檢查模型設定檔或設定。",
 		"qdrantUrlMissing": "建立向量儲存缺少 Qdrant URL",
 		"codeIndexingNotConfigured": "無法建立服務：程式碼索引未正確設定"
+	},
+	"semble": {
+		"downloadingBinary": "正在下載 semble 二進位檔案...",
+		"downloadingModel": "正在下載嵌入模型...",
+		"verifyingModel": "正在驗證嵌入模型...",
+		"clearingCorruptedCache": "正在清除損壞的模型快取...",
+		"reDownloadingModel": "正在重新下載嵌入模型...",
+		"repairingModel": "正在修復嵌入模型...",
+		"ready": "Semble 已就緒。即時搜尋索引。",
+		"providerReset": "Semble 提供者已重設。磁碟快取保留至下次重建。",
+		"modelRepaired": "模型已損毀，已成功重新下載。",
+		"downloadFailed": "Semble 模型下載失敗：{{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "索引失敗：沒有程式碼區塊被成功索引。這通常表示 Embedder 設定問題。",

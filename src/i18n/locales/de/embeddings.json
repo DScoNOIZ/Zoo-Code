@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "Erstellung von Einbettungen nach {{attempts}} Versuchen fehlgeschlagen",
 	"textExceedsTokenLimit": "Text bei Index {{index}} überschreitet das maximale Token-Limit ({{itemTokens}} > {{maxTokens}}). Wird übersprungen.",
 	"rateLimitRetry": "Ratenlimit erreicht, Wiederholung in {{delayMs}}ms (Versuch {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "Code-Indizierung ist deaktiviert",
+	"standbyReady": "Bereit.",
 	"bedrock": {
 		"invalidResponseFormat": "Ungültiges Antwortformat von Amazon Bedrock",
 		"invalidCredentials": "Ungültige AWS-Anmeldedaten. Bitte überprüfe deine AWS-Konfiguration.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "Konnte die Vektordimension für Modell '{{modelId}}' mit Anbieter '{{provider}}' nicht bestimmen. Überprüfe die Modellprofile oder Konfiguration.",
 		"qdrantUrlMissing": "Qdrant-URL fehlt für die Erstellung des Vektorspeichers",
 		"codeIndexingNotConfigured": "Kann keine Dienste erstellen: Code-Indizierung ist nicht richtig konfiguriert"
+	},
+	"semble": {
+		"downloadingBinary": "Semble-Binärdatei wird heruntergeladen...",
+		"downloadingModel": "Einbettungsmodell von HuggingFace wird heruntergeladen...",
+		"verifyingModel": "Einbettungsmodell wird überprüft...",
+		"clearingCorruptedCache": "Beschädigten Modell-Cache wird gelöscht...",
+		"reDownloadingModel": "Einbettungsmodell wird erneut heruntergeladen...",
+		"repairingModel": "Einbettungsmodell wird repariert...",
+		"ready": "Semble ist bereit. Sucht Indizes spontan.",
+		"providerReset": "Semble-Provider zurückgesetzt. Der Cache auf der Festplatte bleibt bis zum nächsten Neuaufbau erhalten.",
+		"modelRepaired": "Das Modell war beschädigt und wurde erfolgreich neu heruntergeladen.",
+		"downloadFailed": "Semble-Modell-Download fehlgeschlagen: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Indizierung fehlgeschlagen: Keine Code-Blöcke wurden erfolgreich indiziert. Dies deutet normalerweise auf ein Embedder-Konfigurationsproblem hin.",

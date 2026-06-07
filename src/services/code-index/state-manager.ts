@@ -1,4 +1,5 @@
 import * as vscode from "vscode"
+import { t } from "../../i18n"
 
 export type IndexingState = "Standby" | "Indexing" | "Indexed" | "Error" | "Stopping"
 
@@ -46,7 +47,7 @@ export class CodeIndexStateManager {
 				this._totalItems = 0
 				this._currentItemUnit = "blocks" // Reset to default unit
 				// Optionally clear the message or set a default for non-indexing states
-				if (newState === "Standby" && message === undefined) this._statusMessage = "Ready."
+				if (newState === "Standby" && message === undefined) this._statusMessage = t("embeddings:standbyReady")
 				if (newState === "Indexed" && message === undefined) this._statusMessage = "Index up-to-date."
 				if (newState === "Error" && message === undefined) this._statusMessage = "An error occurred."
 			}

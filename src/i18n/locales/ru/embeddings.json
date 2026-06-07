@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "Не удалось создать вложения после {{attempts}} попыток",
 	"textExceedsTokenLimit": "Текст в индексе {{index}} превышает максимальный лимит токенов ({{itemTokens}} > {{maxTokens}}). Пропускается.",
 	"rateLimitRetry": "Достигнут лимит скорости, повторная попытка через {{delayMs}} мс (попытка {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "Индексирование кода отключено",
+	"standbyReady": "Ожидание.",
 	"bedrock": {
 		"invalidResponseFormat": "Неверный формат ответа от Amazon Bedrock",
 		"invalidCredentials": "Неверные учетные данные AWS. Проверьте конфигурацию AWS.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "Не удалось определить размерность вектора для модели '{{modelId}}' с провайдером '{{provider}}'. Проверьте профили модели или конфигурацию.",
 		"qdrantUrlMissing": "Отсутствует URL Qdrant для создания векторного хранилища",
 		"codeIndexingNotConfigured": "Невозможно создать сервисы: Индексация кода не настроена должным образом"
+	},
+	"semble": {
+		"downloadingBinary": "Загрузка бинарного файла semble...",
+		"downloadingModel": "Загрузка модели вложений из HuggingFace...",
+		"verifyingModel": "Проверка модели вложений...",
+		"clearingCorruptedCache": "Очистка поврежденного кэша модели...",
+		"reDownloadingModel": "Повторная загрузка модели вложений...",
+		"repairingModel": "Восстановление модели вложений...",
+		"ready": "Semble готов. Поиск индекса на лету.",
+		"providerReset": "Сброс провайдера Semble. Кэш на диске сохраняется до следующей перестройки.",
+		"modelRepaired": "Модель была повреждена и успешно перезагружена.",
+		"downloadFailed": "Не удалось загрузить модель Semble: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Индексация не удалась: Ни один блок кода не был успешно проиндексирован. Это обычно указывает на проблему конфигурации эмбеддера.",

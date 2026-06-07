@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "Nie udało się utworzyć osadzeń po {{attempts}} próbach",
 	"textExceedsTokenLimit": "Tekst w indeksie {{index}} przekracza maksymalny limit tokenów ({{itemTokens}} > {{maxTokens}}). Pomijanie.",
 	"rateLimitRetry": "Osiągnięto limit szybkości, ponawianie za {{delayMs}}ms (próba {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "Indeksowanie kodu jest wyłączone",
+	"standbyReady": "Gotowy.",
 	"bedrock": {
 		"invalidResponseFormat": "Nieprawidłowy format odpowiedzi z Amazon Bedrock",
 		"invalidCredentials": "Nieprawidłowe poświadczenia AWS. Sprawdź konfigurację AWS.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "Nie można określić wymiaru wektora dla modelu '{{modelId}}' z dostawcą '{{provider}}'. Sprawdź profile modelu lub konfigurację.",
 		"qdrantUrlMissing": "Brak adresu URL Qdrant do utworzenia magazynu wektorów",
 		"codeIndexingNotConfigured": "Nie można utworzyć usług: Indeksowanie kodu nie jest poprawnie skonfigurowane"
+	},
+	"semble": {
+		"downloadingBinary": "Pobieranie pliku binarnego semble...",
+		"downloadingModel": "Pobieranie modelu osadzania...",
+		"verifyingModel": "Weryfikowanie modelu osadzania...",
+		"clearingCorruptedCache": "Czyszczenie uszkodzonego cache modelu...",
+		"reDownloadingModel": "Ponowne pobieranie modelu osadzania...",
+		"repairingModel": "Naprawianie modelu osadzania...",
+		"ready": "Semble jest gotowy. Indeksuje na bieżąco.",
+		"providerReset": "Reset dostawcy Semble. Cache na dysku pozostaje do następnej przebudowy.",
+		"modelRepaired": "Model był uszkodzony i został pomyślnie pobrany ponownie.",
+		"downloadFailed": "Pobieranie modelu Semble nie powiodło się: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Indeksowanie nie powiodło się: Żadne bloki kodu nie zostały pomyślnie zaindeksowane. To zwykle wskazuje na problem z konfiguracją embeddera.",

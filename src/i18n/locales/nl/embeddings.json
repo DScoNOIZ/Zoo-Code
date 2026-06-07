@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "Insluitingen maken mislukt na {{attempts}} pogingen",
 	"textExceedsTokenLimit": "Tekst op index {{index}} overschrijdt de maximale tokenlimiet ({{itemTokens}} > {{maxTokens}}). Wordt overgeslagen.",
 	"rateLimitRetry": "Snelheidslimiet bereikt, opnieuw proberen over {{delayMs}}ms (poging {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "Code-indexering is uitgeschakeld",
+	"standbyReady": "Gereed.",
 	"bedrock": {
 		"invalidResponseFormat": "Ongeldig antwoordformaat van Amazon Bedrock",
 		"invalidCredentials": "Ongeldige AWS-referenties. Controleer uw AWS-configuratie.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "Kan de vectordimensie voor model '{{modelId}}' met provider '{{provider}}' niet bepalen. Controleer modelprofielen of configuratie.",
 		"qdrantUrlMissing": "Qdrant URL ontbreekt voor het maken van vectoropslag",
 		"codeIndexingNotConfigured": "Kan geen services maken: Code-indexering is niet correct geconfigureerd"
+	},
+	"semble": {
+		"downloadingBinary": "Semble-binario downloaden...",
+		"downloadingModel": "Insluitingsmodel downloaden...",
+		"verifyingModel": "Insluitingsmodel verifiëren...",
+		"clearingCorruptedCache": "Corrupte modelcache opschonen...",
+		"reDownloadingModel": "Insluitingsmodel opnieuw downloaden...",
+		"repairingModel": "Insluitingsmodel repareren...",
+		"ready": "Semble is gereed. Doorzoekt index direct.",
+		"providerReset": "Semble-provider reset. Schijfcache blijft behouden tot de volgende herbouw.",
+		"modelRepaired": "Model was corrupt en is succesvol opnieuw gedownload.",
+		"downloadFailed": "Semble-model download mislukt: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Indexering mislukt: Geen codeblokken werden succesvol geïndexeerd. Dit duidt meestal op een embedder configuratieprobleem.",

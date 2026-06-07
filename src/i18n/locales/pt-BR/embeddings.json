@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "Falha ao criar embeddings após {{attempts}} tentativas",
 	"textExceedsTokenLimit": "O texto no índice {{index}} excede o limite máximo de tokens ({{itemTokens}} > {{maxTokens}}). Ignorando.",
 	"rateLimitRetry": "Limite de taxa atingido, tentando novamente em {{delayMs}}ms (tentativa {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "A indexação de código está desabilitada",
+	"standbyReady": "Pronto.",
 	"bedrock": {
 		"invalidResponseFormat": "Formato de resposta inválido do Amazon Bedrock",
 		"invalidCredentials": "Credenciais AWS inválidas. Verifique sua configuração AWS.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "Não foi possível determinar a dimensão do vetor para o modelo '{{modelId}}' com o provedor '{{provider}}'. Verifique os perfis do modelo ou a configuração.",
 		"qdrantUrlMissing": "URL do Qdrant ausente para criação do armazenamento de vetores",
 		"codeIndexingNotConfigured": "Não é possível criar serviços: A indexação de código não está configurada corretamente"
+	},
+	"semble": {
+		"downloadingBinary": "Baixando o binário do semble...",
+		"downloadingModel": "Baixando o modelo de embedding...",
+		"verifyingModel": "Verificando o modelo de embedding...",
+		"clearingCorruptedCache": "Limpando cache do modelo corrompido...",
+		"reDownloadingModel": "Re-baixando o modelo de embedding...",
+		"repairingModel": "Reparando o modelo de embedding...",
+		"ready": "Semble está pronto. Pesquisa índice em tempo real.",
+		"providerReset": "Redefinição do provedor Semble. O cache em disco permanece até a próxima reconstrução.",
+		"modelRepaired": "O modelo estava corrompido e foi baixado novamente com sucesso.",
+		"downloadFailed": "Falha no download do modelo Semble: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Indexação falhou: Nenhum bloco de código foi indexado com sucesso. Isso geralmente indica um problema de configuração do embedder.",

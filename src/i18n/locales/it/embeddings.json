@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "Creazione degli embedding non riuscita dopo {{attempts}} tentativi",
 	"textExceedsTokenLimit": "Il testo all'indice {{index}} supera il limite massimo di token ({{itemTokens}} > {{maxTokens}}). Saltato.",
 	"rateLimitRetry": "Limite di velocità raggiunto, nuovo tentativo tra {{delayMs}}ms (tentativo {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "L'indicizzazione del codice è disabilitata",
+	"standbyReady": "Pronto.",
 	"bedrock": {
 		"invalidResponseFormat": "Formato di risposta non valido da Amazon Bedrock",
 		"invalidCredentials": "Credenziali AWS non valide. Si prega di verificare la configurazione AWS.",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "Impossibile determinare la dimensione del vettore per il modello '{{modelId}}' con il provider '{{provider}}'. Controlla i profili del modello o la configurazione.",
 		"qdrantUrlMissing": "URL Qdrant mancante per la creazione dello storage vettoriale",
 		"codeIndexingNotConfigured": "Impossibile creare i servizi: L'indicizzazione del codice non è configurata correttamente"
+	},
+	"semble": {
+		"downloadingBinary": "Scaricando il binario di semble...",
+		"downloadingModel": "Scaricando il modello di embedding...",
+		"verifyingModel": "Verificando il modello di embedding...",
+		"clearingCorruptedCache": "Pulizia della cache del modello corrotto...",
+		"reDownloadingModel": "Riscaricando il modello di embedding...",
+		"repairingModel": "Riparando il modello di embedding...",
+		"ready": "Semble è pronto. Cerca gli indici al volo.",
+		"providerReset": "Reset del provider Semble. La cache su disco rimane fino alla prossima ricostruzione.",
+		"modelRepaired": "Il modello era corrotto ed è stato scaricato nuovamente con successo.",
+		"downloadFailed": "Download del modello Semble fallito: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Indicizzazione fallita: Nessun blocco di codice è stato indicizzato con successo. Questo di solito indica un problema di configurazione dell'embedder.",

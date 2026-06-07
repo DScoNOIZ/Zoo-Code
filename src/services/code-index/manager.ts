@@ -499,7 +499,7 @@ export class CodeIndexManager {
 			// If feature is disabled, stop the service (including any active scan)
 			if (!isFeatureEnabled) {
 				this.stopIndexing()
-				this._stateManager.setSystemState("Standby", "Code indexing is disabled")
+				this._stateManager.setSystemState("Standby", t("embeddings:indexingDisabled"))
 				return
 			}
 

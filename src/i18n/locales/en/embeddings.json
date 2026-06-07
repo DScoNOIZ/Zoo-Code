@@ -6,6 +6,8 @@
 	"failedMaxAttempts": "Failed to create embeddings after {{attempts}} attempts",
 	"textExceedsTokenLimit": "Text at index {{index}} exceeds maximum token limit ({{itemTokens}} > {{maxTokens}}). Skipping.",
 	"rateLimitRetry": "Rate limit hit, retrying in {{delayMs}}ms (attempt {{attempt}}/{{maxRetries}})",
+	"indexingDisabled": "Code indexing is disabled",
+	"standbyReady": "Ready.",
 	"ollama": {
 		"couldNotReadErrorBody": "Could not read error body",
 		"requestFailed": "Ollama API request failed with status {{status}} {{statusText}}: {{errorBody}}",
@@ -61,6 +63,18 @@
 		"vectorDimensionNotDetermined": "Could not determine vector dimension for model '{{modelId}}' with provider '{{provider}}'. Check model profiles or configuration.",
 		"qdrantUrlMissing": "Qdrant URL missing for vector store creation",
 		"codeIndexingNotConfigured": "Cannot create services: Code indexing is not properly configured"
+	},
+	"semble": {
+		"downloadingBinary": "Downloading semble binary...",
+		"downloadingModel": "Downloading embedding model from HuggingFace...",
+		"verifyingModel": "Verifying embedding model...",
+		"clearingCorruptedCache": "Clearing corrupted model cache...",
+		"reDownloadingModel": "Re-downloading embedding model...",
+		"repairingModel": "Repairing embedding model...",
+		"ready": "Semble is ready. Searches index on-the-fly.",
+		"providerReset": "Semble provider reset. On-disk cache remains until next rebuild.",
+		"modelRepaired": "Model was corrupted and has been re-downloaded successfully.",
+		"downloadFailed": "Semble model download failed: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Indexing failed: No code blocks were successfully indexed. This usually indicates an embedder configuration issue.",
