@@ -1,5 +1,11 @@
 # Zoo Code Changelog
 
+## [3.58.1]
+
+### Patch Changes
+
+- Fix: Remove unsupported `--no-absolute-filenames` tar argument (#491 by @kazenshi, PR #492 by @kazenshi)
+
 ## 3.58.0
 
 ### Minor Changes
