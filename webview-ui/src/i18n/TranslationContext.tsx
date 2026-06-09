@@ -33,11 +33,11 @@ export const TranslationProvider: React.FC<{ children: ReactNode }> = ({ childre
 	}, [i18n, extensionState.language])
 
 	// Memoize the translation function to prevent unnecessary re-renders
-	// eslint-disable-next-line react-hooks/exhaustive-deps -- i18n is a stable singleton; i18n.language must be listed explicitly to bust the memo on locale change
 	const translate = useCallback(
 		(key: string, options?: Record<string, any>) => {
 			return i18n.t(key, options)
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- i18n is a stable singleton; i18n.language must be listed explicitly to bust the memo on locale change
 		[i18n, i18n.language],
 	)
 
