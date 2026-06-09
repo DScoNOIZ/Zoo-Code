@@ -10,7 +10,6 @@ const sharedMockCli = {
 	checkModel: vi.fn(),
 	search: vi.fn(),
 	findRelated: vi.fn(),
-	verifyModelFiles: vi.fn(),
 	clearModelCache: vi.fn(),
 }
 
@@ -63,7 +62,6 @@ describe("SembleProvider", () => {
 		// Default: checkInstalled and checkModel both succeed
 		sharedMockCli.checkInstalled.mockResolvedValue({ installed: true })
 		sharedMockCli.checkModel.mockResolvedValue({ installed: true })
-		sharedMockCli.verifyModelFiles.mockReturnValue({ valid: true })
 		sharedMockCli.clearModelCache.mockReturnValue({ cleared: true })
 
 		mockStateManager = {
@@ -204,10 +202,11 @@ describe("SembleProvider", () => {
 			await provider.initialize()
 		})
 
-		it("should return empty array when not initialized", async () => {
+		it("should throw when not initialized", async () => {
 			const uninitializedProvider = new SembleProvider("/workspace", mockContext, mockStateManager)
-			const results = await uninitializedProvider.searchIndex("test query")
-			expect(results).toEqual([])
+			await expect(uninitializedProvider.searchIndex("test query")).rejects.toThrow(
+				"Semble provider is not initialized",
+			)
 		})
 
 		it("should search using CLI and convert results", async () => {
@@ -429,13 +428,12 @@ describe("SembleProvider", () => {
 			)
 		})
 
-		it("should return empty array when in Error state", async () => {
+		it("should throw when in Error state", async () => {
 			;(isSembleSupportedPlatform as any).mockReturnValue(false)
 			const errorProvider = new SembleProvider("/workspace", mockContext, mockStateManager)
 			await errorProvider.initialize()
 			;(isSembleSupportedPlatform as any).mockReturnValue(true) // reset for other tests
-			const results = await errorProvider.searchIndex("test")
-			expect(results).toEqual([])
+			await expect(errorProvider.searchIndex("test")).rejects.toThrow("Semble provider is not initialized")
 		})
 	})
 
@@ -456,9 +454,8 @@ describe("SembleProvider", () => {
 
 			provider.dispose()
 
-			// After dispose, searchIndex should return empty array
-			const results = await provider.searchIndex("test")
-			expect(results).toEqual([])
+			// After dispose, searchIndex should throw
+			await expect(provider.searchIndex("test")).rejects.toThrow("Semble provider is not initialized")
 		})
 	})
 
