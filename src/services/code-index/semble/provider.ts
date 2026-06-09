@@ -139,42 +139,37 @@ export class SembleProvider implements ISembleProvider {
 	}
 
 	private async _ensureModelReady(): Promise<ModelReadinessResult> {
-		const fileCheck = this.cli.verifyModelFiles()
+		// Step 1: Run smoke search via CLI to verify model is functional.
+		// This also triggers first-time model download if needed.
+		this.stateManager.setSystemState("Indexing", t("embeddings:semble.verifyingModel"))
+		const smokeResult = await this.cli.checkModel()
 
-		if (fileCheck.valid) {
-			this.stateManager.setSystemState("Indexing", t("embeddings:semble.verifyingModel"))
-			const smokeResult = await this.cli.checkModel()
-
-			if (smokeResult.installed) {
-				return { success: true }
-			}
-
-			const errorMsg = smokeResult.error || ""
-			if (errorMsg.toLowerCase().includes("timeout") || errorMsg.toLowerCase().includes("timed out")) {
-				console.warn(`[SembleProvider] Model smoke search timed out (transient): ${errorMsg}`)
-				return {
-					success: false,
-					error: `Model loading timed out. This is normal on first use. Please try again.`,
-					wasRepaired: false,
-				}
-			}
-
-			console.warn(`[SembleProvider] Model files exist but corrupted: ${errorMsg}`)
-		} else {
-			console.log(`[SembleProvider] Model files not found: ${fileCheck.error}`)
+		if (smokeResult.installed) {
+			return { success: true }
 		}
 
-		if (fileCheck.valid) {
-			console.log("[SembleProvider] Clearing corrupted model cache...")
-			this.stateManager.setSystemState("Indexing", t("embeddings:semble.clearingCorruptedCache"))
+		const errorMsg = smokeResult.error || ""
+		if (errorMsg.toLowerCase().includes("timeout") || errorMsg.toLowerCase().includes("timed out")) {
+			console.warn(`[SembleProvider] Model smoke search timed out (transient): ${errorMsg}`)
+			return {
+				success: false,
+				error: `Model loading timed out. This is normal on first use. Please try again.`,
+				wasRepaired: false,
+			}
+		}
 
-			const clearResult = this.cli.clearModelCache()
-			if (!clearResult.cleared) {
-				return {
-					success: false,
-					error: `Failed to clear corrupted model cache: ${clearResult.error}`,
-					wasRepaired: false,
-				}
+		console.warn(`[SembleProvider] Model verification failed: ${errorMsg}`)
+
+		// Step 2: Attempt repair — clear cache and re-download
+		console.log("[SembleProvider] Clearing corrupted model cache...")
+		this.stateManager.setSystemState("Indexing", t("embeddings:semble.clearingCorruptedCache"))
+
+		const clearResult = this.cli.clearModelCache()
+		if (!clearResult.cleared) {
+			return {
+				success: false,
+				error: `Failed to clear corrupted model cache: ${clearResult.error}`,
+				wasRepaired: false,
 			}
 		}
 
@@ -184,28 +179,20 @@ export class SembleProvider implements ISembleProvider {
 		try {
 			await this.cli.search("health", this.workspacePath, { topK: 1 })
 		} catch (error: any) {
-			const errorMsg = error?.message || String(error)
+			const downloadError = error?.message || String(error)
 
-			if (errorMsg.toLowerCase().includes("model") || errorMsg.toLowerCase().includes("download")) {
+			if (downloadError.toLowerCase().includes("model") || downloadError.toLowerCase().includes("download")) {
 				return {
 					success: false,
-					error: errorMsg,
-					wasRepaired: false,
+					error: downloadError,
+					wasRepaired: true,
 				}
 			}
 
-			console.warn(`[SembleProvider] Smoke search returned error (may be non-model related): ${errorMsg}`)
+			console.warn(`[SembleProvider] Smoke search returned error (may be non-model related): ${downloadError}`)
 		}
 
-		const verifyCheck = this.cli.verifyModelFiles()
-		if (!verifyCheck.valid) {
-			return {
-				success: false,
-				error: `Model download incomplete: ${verifyCheck.error}`,
-				wasRepaired: !fileCheck.valid,
-			}
-		}
-
+		// Step 3: Verify model is now functional
 		const finalCheck = await this.cli.checkModel()
 		if (!finalCheck.installed) {
 			const errMsg = finalCheck.error || "verification failed"
@@ -213,17 +200,17 @@ export class SembleProvider implements ISembleProvider {
 				return {
 					success: false,
 					error: `Model downloaded but loading timed out. Please try again.`,
-					wasRepaired: !fileCheck.valid,
+					wasRepaired: true,
 				}
 			}
 			return {
 				success: false,
 				error: errMsg,
-				wasRepaired: !fileCheck.valid,
+				wasRepaired: true,
 			}
 		}
 
-		return { success: true, wasRepaired: !fileCheck.valid }
+		return { success: true, wasRepaired: true }
 	}
 
 	async startIndexing(): Promise<void> {
@@ -245,12 +232,12 @@ export class SembleProvider implements ISembleProvider {
 
 	async searchIndex(query: string, directoryPrefix?: string): Promise<VectorStoreSearchResult[]> {
 		if (!this._isInitialized) {
-			console.warn("[SembleProvider] searchIndex called before initialization")
-			return []
+			throw new Error("Semble provider is not initialized")
 		}
 
 		if (this._state === "Error") {
-			return []
+			const status = this.stateManager.getCurrentStatus()
+			throw new Error(status.message || "Semble provider is in Error state")
 		}
 
 		try {
@@ -325,11 +312,6 @@ export class SembleProvider implements ISembleProvider {
 
 			this.stateManager.setSystemState("Indexing", t("embeddings:semble.reDownloadingModel"))
 			await this.cli.search("health", this.workspacePath, { topK: 1 })
-
-			const verifyCheck = this.cli.verifyModelFiles()
-			if (!verifyCheck.valid) {
-				return { success: false, error: `Re-download completed but files not found: ${verifyCheck.error}` }
-			}
 
 			const modelCheck = await this.cli.checkModel()
 			if (!modelCheck.installed) {
