@@ -20,10 +20,10 @@
 		"invalidResponseStructure": "Structure de réponse invalide de l'API Ollama : tableau \"embeddings\" non trouvé ou n'est pas un tableau.",
 		"embeddingFailed": "Échec de l'embedding Ollama : {{message}}",
 		"serviceNotRunning": "Le service Ollama n'est pas en cours d'exécution sur {{baseUrl}}",
-		"serviceUnavailable": "Le service Ollama est indisponible (statut : {{status}})",
-		"modelNotFound": "Modèle Ollama introuvable : {{modelId}}",
-		"modelNotEmbeddingCapable": "Le modèle Ollama n'est pas capable d'intégrer : {{modelId}}",
-		"hostNotFound": "Hôte Ollama introuvable : {{baseUrl}}"
+		"serviceUnavailable": "Le service Ollama est indisponible (statut\u00a0: {{status}})",
+		"modelNotFound": "Modèle Ollama introuvable\u00a0: {{modelId}}",
+		"modelNotEmbeddingCapable": "Le modèle Ollama n'est pas capable d'intégrer\u00a0: {{modelId}}",
+		"hostNotFound": "Hôte Ollama introuvable\u00a0: {{baseUrl}}"
 	},
 	"scanner": {
 		"unknownErrorProcessingFile": "Erreur inconnue lors du traitement du fichier {{filePath}}",
@@ -66,7 +66,7 @@
 	},
 	"semble": {
 		"downloadingBinary": "Téléchargement du binaire semble...",
-		"downloadingModel": "Téléchargement du modèle d'embedding...",
+		"downloadingModel": "Téléchargement du modèle d'embedding depuis HuggingFace...",
 		"verifyingModel": "Vérification du modèle d'embedding...",
 		"clearingCorruptedCache": "Nettoyage du cache du modèle corrompu...",
 		"reDownloadingModel": "Re-téléchargement du modèle d'embedding...",

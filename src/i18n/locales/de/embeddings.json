@@ -71,7 +71,7 @@
 		"clearingCorruptedCache": "Beschädigten Modell-Cache wird gelöscht...",
 		"reDownloadingModel": "Einbettungsmodell wird erneut heruntergeladen...",
 		"repairingModel": "Einbettungsmodell wird repariert...",
-		"ready": "Semble ist bereit. Sucht Indizes spontan.",
+		"ready": "Semble ist bereit. Durchsucht Indizes bei Bedarf.",
 		"providerReset": "Semble-Provider zurückgesetzt. Der Cache auf der Festplatte bleibt bis zum nächsten Neuaufbau erhalten.",
 		"modelRepaired": "Das Modell war beschädigt und wurde erfolgreich neu heruntergeladen.",
 		"downloadFailed": "Semble-Modell-Download fehlgeschlagen: {{error}}"

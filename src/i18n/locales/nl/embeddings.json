@@ -65,7 +65,7 @@
 		"codeIndexingNotConfigured": "Kan geen services maken: Code-indexering is niet correct geconfigureerd"
 	},
 	"semble": {
-		"downloadingBinary": "Semble-binario downloaden...",
+		"downloadingBinary": "Semble-binary downloaden...",
 		"downloadingModel": "Insluitingsmodel downloaden...",
 		"verifyingModel": "Insluitingsmodel verifiëren...",
 		"clearingCorruptedCache": "Corrupte modelcache opschonen...",

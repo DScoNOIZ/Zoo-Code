@@ -66,7 +66,7 @@
 	},
 	"semble": {
 		"downloadingBinary": "Descargando el binario de semble...",
-		"downloadingModel": "Descargando el modelo de incrustación...",
+		"downloadingModel": "Descargando el modelo de incrustación desde HuggingFace...",
 		"verifyingModel": "Verificando el modelo de incrustación...",
 		"clearingCorruptedCache": "Limpiando la caché del modelo corrupto...",
 		"reDownloadingModel": "Re-descargando el modelo de incrustación...",

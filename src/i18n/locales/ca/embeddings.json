@@ -65,16 +65,16 @@
 		"codeIndexingNotConfigured": "No es poden crear serveis: La indexació de codi no està configurada correctament"
 	},
 	"semble": {
-		"downloadingBinary": "Baixant el binari de semble...",
-		"downloadingModel": "Baixant el model d'incrustació...",
+		"downloadingBinary": "Baixant el binari de Semble...",
+		"downloadingModel": "Baixant el model d'incrustació des de HuggingFace...",
 		"verifyingModel": "Verificant el model d'incrustació...",
 		"clearingCorruptedCache": "Netejant la memòria cau del model corrupte...",
 		"reDownloadingModel": "Tornant a baixar el model d'incrustació...",
 		"repairingModel": "Reparant el model d'incrustació...",
-		"ready": "El semble està llest. Cerca índex sobre la marxa.",
-		"providerReset": "Reinici del proveïdor de semble. La memòria cau al disc roman fins a la propera reconstrucció.",
+		"ready": "Semble està llest. Cerca índex sobre la marxa.",
+		"providerReset": "Reinici del proveïdor de Semble. La memòria cau al disc roman fins a la propera reconstrucció.",
 		"modelRepaired": "El model estava corrupte i s'ha tornat a baixar correctament.",
-		"downloadFailed": "Ha fallat la descàrrega del model Semble: {{error}}"
+		"downloadFailed": "Ha fallat la descàrrega del model de Semble: {{error}}"
 	},
 	"orchestrator": {
 		"indexingFailedNoBlocks": "Indexació fallida: No s'ha indexat cap bloc de codi amb èxit. Això normalment indica un problema de configuració de l'embedder.",
