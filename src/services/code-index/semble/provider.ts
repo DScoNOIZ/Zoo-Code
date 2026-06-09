@@ -164,7 +164,7 @@ export class SembleProvider implements ISembleProvider {
 		console.log("[SembleProvider] Clearing corrupted model cache...")
 		this.stateManager.setSystemState("Indexing", t("embeddings:semble.clearingCorruptedCache"))
 
-		const clearResult = this.cli.clearModelCache()
+		const clearResult = await this.cli.clearModelCache()
 		if (!clearResult.cleared) {
 			return {
 				success: false,
@@ -231,13 +231,16 @@ export class SembleProvider implements ISembleProvider {
 	}
 
 	async searchIndex(query: string, directoryPrefix?: string): Promise<VectorStoreSearchResult[]> {
-		if (!this._isInitialized) {
-			throw new Error("Semble provider is not initialized")
-		}
-
+		// Check Error state FIRST so we surface the real initialization failure,
+		// not a generic "not initialized" message. When _doInitialize() fails,
+		// it sets _state="Error" but never flips _isInitialized=true.
 		if (this._state === "Error") {
 			const status = this.stateManager.getCurrentStatus()
 			throw new Error(status.message || "Semble provider is in Error state")
+		}
+
+		if (!this._isInitialized) {
+			throw new Error("Semble provider is not initialized")
 		}
 
 		try {
@@ -304,7 +307,7 @@ export class SembleProvider implements ISembleProvider {
 	private async _repairModel(): Promise<{ success: boolean; error?: string }> {
 		try {
 			this.stateManager.setSystemState("Indexing", t("embeddings:semble.repairingModel"))
-			const clearResult = this.cli.clearModelCache()
+			const clearResult = await this.cli.clearModelCache()
 
 			if (!clearResult.cleared) {
 				return { success: false, error: clearResult.error || "Failed to clear model cache" }

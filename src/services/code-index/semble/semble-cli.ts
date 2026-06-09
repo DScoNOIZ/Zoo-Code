@@ -103,15 +103,15 @@ export class SembleCLI {
 	 *
 	 * @returns { cleared: true } if cache was cleared, or { cleared: false, error } on failure.
 	 */
-	clearModelCache(): { cleared: boolean; error?: string } {
+	async clearModelCache(): Promise<{ cleared: boolean; error?: string }> {
 		try {
 			// Use CLI surface to clear cache — avoids hardcoding HF paths
-			this._spawnSync(["clear-cache"], { timeout: 30_000 })
+			await this._spawn(["clear-cache"], { timeout: 30_000 })
 			console.log("[SembleCLI] Model cache cleared via CLI")
 			return { cleared: true }
-		} catch {
-			// Fallback: clear-cache command may not exist in older versions
-			return { cleared: false, error: "clear-cache command not available" }
+		} catch (error: any) {
+			const message = error?.message || String(error)
+			return { cleared: false, error: message }
 		}
 	}
 
@@ -266,8 +266,8 @@ export class SembleCLI {
 	}
 
 	/**
-	 * Synchronous spawn for short-running commands (e.g., clear-cache).
-	 */
+		* Synchronous spawn for short-running commands (e.g., clear-cache).
+		*/
 	private _spawnSync(args: string[], options: { timeout: number }): void {
 		const result = spawnSync(this.semblePath, args, {
 			shell: false,
@@ -287,7 +287,7 @@ export class SembleCLI {
 	}
 
 	/**
-	 * Parses semble CLI JSON output into structured results.
+		* Parses semble CLI JSON output into structured results.
 	 *
 	 * Semble v0.3.0+ outputs JSON by default with format:
 	 *   { "query": "...", "results": [{ "chunk": { "content": "...", "file_path": "...", "start_line": N, "end_line": M, "language": "...", "location": "..." }, "score": X }] }
