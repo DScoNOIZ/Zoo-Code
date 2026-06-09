@@ -105,6 +105,11 @@ vi.mock("@roo-code/telemetry", () => ({
 	},
 }))
 
+// Mock i18n — return the full key so assertions match t() behavior in test environment
+vi.mock("../../../i18n", () => ({
+	t: (key: string, _params?: Record<string, any>) => key,
+}))
+
 vi.mock("../service-factory")
 const MockedCodeIndexServiceFactory = CodeIndexServiceFactory as MockedClass<typeof CodeIndexServiceFactory>
 
@@ -799,7 +804,7 @@ describe("CodeIndexManager - handleSettingsChange regression", () => {
 			await manager.handleSettingsChange()
 
 			expect(mockOrchestrator.stopIndexing).toHaveBeenCalled()
-			expect(mockStateManager.setSystemState).toHaveBeenCalledWith("Standby", "indexingDisabled")
+			expect(mockStateManager.setSystemState).toHaveBeenCalledWith("Standby", "embeddings:indexingDisabled")
 		})
 	})
 })
