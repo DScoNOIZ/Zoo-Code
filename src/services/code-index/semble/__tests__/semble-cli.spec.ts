@@ -266,6 +266,7 @@ describe("SembleCLI", () => {
 							language: "typescript",
 							location: "src/related.ts:1-10",
 						},
+						score: 0.85,
 					},
 				],
 			}
@@ -275,7 +276,7 @@ describe("SembleCLI", () => {
 
 			expect(results).toHaveLength(1)
 			expect(results[0].chunk.file_path).toBe("src/related.ts")
-			expect(results[0].score).toBe(undefined)
+			expect(results[0].score).toBe(0.85)
 		})
 	})
 
