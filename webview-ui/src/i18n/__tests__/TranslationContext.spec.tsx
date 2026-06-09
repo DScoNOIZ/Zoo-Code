@@ -8,7 +8,7 @@ import TranslationProvider, { useAppTranslation } from "../TranslationContext"
 const mockTranslations = vi.hoisted((): Record<string, Record<string, string>> => ({
 	en: {
 		"settings.autoApprove.title": "Auto-Approve",
-		"notifications.error": "Operation failed",
+		"notifications.error": "Operation failed: {{message}}",
 		"common:confirmation.editMessage": "Edit Message",
 		"common:confirmation.deleteMessage": "Delete Message",
 		"common:confirmation.editWarning":
@@ -20,7 +20,7 @@ const mockTranslations = vi.hoisted((): Record<string, Record<string, string>> =
 	},
 	ru: {
 		"settings.autoApprove.title": "Авто-Одобрение",
-		"notifications.error": "Ошибка операции",
+		"notifications.error": "Ошибка операции: {{message}}",
 		"common:confirmation.editMessage": "Редактировать Сообщение",
 		"common:confirmation.deleteMessage": "Удалить Сообщение",
 		"common:confirmation.editWarning":
@@ -58,7 +58,7 @@ const mockI18n = vi.hoisted(() => ({
 
 vi.mock("@/context/ExtensionStateContext", () => ({
 	useExtensionState: () => ({
-		language: mockI18n.language,
+		language: mockLanguageState.current,
 	}),
 }))
 
@@ -105,10 +105,10 @@ describe("TranslationContext", () => {
 			</TranslationProvider>,
 		)
 
-		expect(getByTestId("translation-interpolation")).toHaveTextContent("Operation failed")
+		expect(getByTestId("translation-interpolation")).toHaveTextContent("Operation failed: Test error")
 	})
 
-	it("should re-render consumers when language changes (regression for memoized components)", () => {
+	it("should re-render consumers when language changes via extensionState (regression for memoized components)", () => {
 		const MemoizedConsumer = React.memo(() => {
 			const { t } = useAppTranslation()
 			return (
@@ -147,12 +147,12 @@ describe("TranslationContext", () => {
 		expect(getByTestId("memo-proceed")).toHaveTextContent("Proceed")
 		expect(getByTestId("normal-title")).toHaveTextContent("Edit Message")
 
-		// Change language to Russian
+		// Simulate language change via extensionState (production path)
+		// This triggers useEffect → i18n.changeLanguage() → i18n.language update → useCallback recreation
 		act(() => {
-			mockI18n.changeLanguage("ru")
+			mockLanguageState.current = "ru"
 		})
 
-		// Re-render to pick up context change
 		rerender(
 			<TranslationProvider>
 				<MemoizedConsumer />
@@ -170,7 +170,7 @@ describe("TranslationContext", () => {
 		expect(getByTestId("normal-title")).toHaveTextContent("Редактировать Сообщение")
 	})
 
-	it("should re-render delete dialog with correct translations after language switch", () => {
+	it("should re-render delete dialog with correct translations after language switch via extensionState", () => {
 		const DeleteDialog = React.memo(() => {
 			const { t } = useAppTranslation()
 			return (
@@ -192,8 +192,9 @@ describe("TranslationContext", () => {
 			"Deleting this message will delete all subsequent messages",
 		)
 
+		// Simulate language change via extensionState (production path)
 		act(() => {
-			mockI18n.changeLanguage("ru")
+			mockLanguageState.current = "ru"
 		})
 
 		rerender(
