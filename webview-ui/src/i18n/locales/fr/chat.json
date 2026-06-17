@@ -221,6 +221,7 @@
 		"running": "En cours d'exécution",
 		"pid": "PID : {{pid}}",
 		"exitStatus": "Terminé avec le statut {{exitCode}}",
+		"malformedCommand": "Commande mal formée : erreur de syntaxe shell",
 		"manageCommands": "Commandes approuvées automatiquement",
 		"addToAllowed": "Ajouter à la liste autorisée",
 		"removeFromAllowed": "Retirer de la liste autorisée",
@@ -330,16 +331,11 @@
 	"announcement": {
 		"title": "Zoo Code {{version}} est disponible",
 		"support": "Soutiens Zoo Code en nous donnant une étoile sur <githubLink>GitHub</githubLink>.",
-		"handoff": {
-			"heading": "Roo Code est de retour ! Désormais comme plugin maintenu par la communauté sous le nom Zoo Code !!",
-			"description": "Si tu n'as pas suivi, l'équipe Roo Code a récemment annoncé qu'elle arrêtait le développement de Roo Code et archivait le travail accompli. Mais pas de panique : la communauté a pris le relais pour faire vivre l'héritage de Roo Code avec un nouveau nom et un nouveau foyer ! Nous ne sommes plus juste un seul « Roo », nous sommes une communauté, un « Zoo » si tu veux. Zoo Code est un plugin maintenu par la communauté qui reprend là où Roo Code s'est arrêté, et nous nous engageons à préserver l'esprit de Roo tout en ajoutant de nouvelles fonctionnalités et améliorations. Nous voulons adresser un immense merci à toute l'équipe Roo Code pour son travail incroyable et pour avoir créé un outil aussi formidable pour les développeurs. Nous sommes ravis de poursuivre sur leurs bases et de voir jusqu'où la communauté mènera Zoo Code.",
-			"readMore": "Voir la nouvelle page d'accueil de Zoo Code et lire l'annonce complète"
-		},
 		"release": {
 			"heading": "Nouveautés :",
-			"highlight1": "Connecte-toi via Zoo Gateway — achemine tes requêtes à travers un gateway géré avec support d'authentification multi-profil.",
-			"highlight2": "Utilise Gemini 3.5 Flash — un modèle Google rapide et performant, désormais disponible directement dans les paramètres du fournisseur.",
-			"highlight3": "Indexe ton code localement avec Semble — embeddings à la volée sans clé API externe ni téléversement, ton code reste sur ta machine."
+			"highlight1": "Nouveaux modèles d'IA — Claude Fable 5 pour tous les fournisseurs Anthropic et OpenAI GPT-5.5 sont désormais disponibles dans les paramètres du fournisseur.",
+			"highlight2": "Listes d'autorisation MCP par mode — restreins les serveurs MCP actifs par mode grâce à une nouvelle liste d'autorisation dans la configuration du mode.",
+			"highlight3": "Paramètre rootResolution pour l'espace de travail — un nouveau réglage qui contrôle la résolution des chemins de fichiers dans les espaces de travail multi-racines."
 		},
 		"cloudAgents": {
 			"heading": "Nouveautés dans le Cloud :",

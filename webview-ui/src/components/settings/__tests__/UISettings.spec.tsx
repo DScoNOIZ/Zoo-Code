@@ -83,9 +83,7 @@ describe("UISettings", () => {
 			const resetUnset = getByTestId("chat-font-size-reset") as HTMLButtonElement
 			expect(resetUnset.disabled).toBe(true)
 
-			rerender(
-				<UISettings {...defaultProps} chatFontSize={18} setCachedStateField={setCachedStateField} />,
-			)
+			rerender(<UISettings {...defaultProps} chatFontSize={18} setCachedStateField={setCachedStateField} />)
 			const resetSet = getByTestId("chat-font-size-reset") as HTMLButtonElement
 			expect(resetSet.disabled).toBe(false)
 
