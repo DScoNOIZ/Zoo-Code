@@ -1,5 +1,30 @@
 # Zoo Code Changelog
 
+## [3.60.0]
+
+### Minor Changes
+
+- Add Claude Fable 5 support across Anthropic, Bedrock, and Vertex providers (PR #555 by @taltas)
+- Add OpenAI GPT-5.5 support (PR #537 by @scream4ik)
+- Add per-mode MCP server restrictions — configure an allowlist to restrict which MCP servers are active per mode (PR #453 by @simurg79)
+- Add workspace `rootResolution` setting for controlling path resolution in multi-root workspaces (PR #538 by @simurg79)
+- Add LiteLLM support for `reasoning_content` and `reasoning` fields in streaming responses (PR #449 by @daewoongoh)
+- Add Show Ripgrep Diagnostic command for easier ripgrep troubleshooting (PR #281 by @0xMink)
+- Redesign terminal profile settings UX — unified dropdown, consistent layout, and improved styling (#119 by @chenyuanrun, #321 by @F915, PR #533 by @F915)
+- Fix chat window running out of memory when transcript grows large (PR #153 by @app/roomote)
+- Fix relative symlinks in rules files not resolving correctly using realpath of parent directory (PR #442 by @p12tic)
+- Fix command approval buttons not clearing when auto-executed (PR #480 by @awschmeder)
+- Fix multi-line quoted command parsing, auto-approval behavior, and malformed-command error surfacing (PR #483 by @awschmeder)
+- Fix `list-files` tool to validate directory exists before spawning ripgrep (#557 by @edelauna, PR #558 by @edelauna)
+- Fix child tasks returning to parent when parent status is active in AttemptCompletionTool (PR #510 by @edelauna)
+- Fix surface in-stream errors from Zoo and Vercel AI gateways (PR #569 by @JamesRobert20)
+- Gate marketplace publish behind PR approval check (PR #516 by @edelauna)
+- Stabilize flaky e2e provider suite ordering and zai requestCapture race (#512 by @edelauna, #514 by @edelauna, PR #45 by @app/roomote)
+- Fix flaky e2e subtasks fixture collision and task identity prompt (#561, PR #563 by @simurg79)
+- Add contributing guidelines: PR expectations and AI-assisted contribution policy (PR #562 by @edelauna)
+- Configure knip and remove dead code (PR #225 by @app/roomote)
+- Pin dependencies (PR #423 by @app/renovate)
+
 ## [3.58.1]
 
 ### Patch Changes

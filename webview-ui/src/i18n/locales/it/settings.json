@@ -544,6 +544,7 @@
 			"minimal": "Minimo (più veloce)",
 			"high": "Alto",
 			"xhigh": "Molto alto",
+			"max": "Massimo",
 			"medium": "Medio",
 			"low": "Basso"
 		},
@@ -751,10 +752,9 @@
 			"description": "Attiva per ereditare le variabili d'ambiente dal processo padre di VS Code. <0>Scopri di più</0>"
 		},
 		"profile": {
-			"label": "Override terminale Zoo Code",
-			"default": "Usa il profilo predefinito di VS Code (consigliato)",
-			"description": "Per impostazione predefinita Zoo Code usa la shell configurata in VS Code. Seleziona Override per scegliere un profilo shell con percorso esposto da VS Code. I profili solo sorgente (es. la voce PowerShell integrata) non possono essere elencati qui. <0>Ulteriori informazioni</0>",
-			"overrideLabel": "Sostituisci shell per Zoo Code",
+			"label": "Shell per Zoo Code",
+			"followVscode": "Segui il profilo di VS Code (consigliato)",
+			"description": "Per impostazione predefinita Zoo Code usa la shell configurata in VS Code. Seleziona un profilo shell dall'elenco per scegliere un profilo shell con percorso esposto da VS Code. I profili solo sorgente (es. la voce PowerShell integrata) non possono essere elencati qui. <0>Ulteriori informazioni</0>",
 			"configureButton": "Scegli il profilo predefinito in VS Code",
 			"noProfiles": "(nessun profilo con percorso trovato in terminal.integrated.profiles)"
 		}
@@ -985,6 +985,18 @@
 			"label": "Dimensione carattere della chat",
 			"description": "Imposta la dimensione del carattere (in pixel) per la chat di Zoo Code. Lascia il valore predefinito per adattarsi alla dimensione del carattere di VS Code.",
 			"reset": "Usa il valore predefinito di VS Code"
+		},
+		"autoCloseZooOpenedFiles": {
+			"label": "Chiudi automaticamente i file aperti da Zoo",
+			"description": "Quando abilitata, le schede dell'editor che Zoo ha aperto temporaneamente per un diff vengono chiuse automaticamente dopo l'accettazione o il rifiuto della modifica. Le schede che l'utente aveva già aperto prima della modifica non vengono mai chiuse automaticamente."
+		},
+		"autoCloseZooOpenedFilesAfterUserEdited": {
+			"label": "Chiudi automaticamente anche dopo l'interazione dell'utente",
+			"description": "Quando abilitata, le schede aperte da Zoo vengono chiuse anche se l'utente ha fatto clic o digitato nel file o nel diff durante la sessione di modifica. Non ha effetto se 'Chiudi automaticamente i file aperti da Zoo' è disabilitata."
+		},
+		"autoCloseZooOpenedNewFiles": {
+			"label": "Chiudi automaticamente i nuovi file creati",
+			"description": "Quando abilitata, le schede dei file che Zoo ha creato (invece di modificare) vengono chiuse automaticamente dopo l'accettazione della modifica."
 		}
 	},
 	"skills": {

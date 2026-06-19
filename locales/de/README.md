@@ -30,21 +30,11 @@
 
 Eine kurze Anleitung für den Wechsel von Roo Code zu Zoo Code findest du im [Roo→Zoo-Migrationsleitfaden](https://docs.zoocode.dev/roo-to-zoo-migration). Wir wollen Nutzer beim Umstieg so gut wie möglich unterstützen, und genau dafür sind unser [Reddit](https://www.reddit.com/r/ZooCode) und [Discord](https://discord.gg/VxfP4Vx3gX) da. Wenn du Probleme hast oder Fragen auftauchen, komm vorbei und frag nach.
 
-## Neu in v3.58.0
+## Neu in v3.60.0
 
-- **Zoo Gateway** — verbinde dich über ein verwaltetes Gateway mit Multi-Profil-Authentifizierung
-- **Gemini 3.5 Flash** — ein schnelles, leistungsstarkes Google-Modell, jetzt direkt in den Provider-Einstellungen verfügbar
-- **Semble-Einbettungen** — indexiere deine Codebasis lokal ohne externen API-Schlüssel oder Upload
-- **Konfigurierbarer Chat-Schriftgrad** und **VS Code integriertes Terminal Shell-Override**
-- **GitHub-ähnliche Hinweise** werden im Webview gerendert
-- **Konfigurierbare maximale Ausgabe-Tokens** für GLM-Modelle
-- **WorkspacePathResolver** — zuverlässige Pfadverarbeitung in Workspaces mit Symlinks
-- React-Absturz durch fehlerhafte Follow-up-Vorschlagsmodi behoben
-- Fehlendes OpenAI-Temperature-Parameter bei fehlendem benutzerdefinierten Wert korrigiert
-- Behandlung von Fehlern pro Schlüssel beim Importieren von Einstellungen
-- Sicherheitsupdates: mermaid v11.15.0, axios v1.16.0
-
----
+- **Fable 5 + GPT-5.5** — Claude Fable 5 (Anthropic, Bedrock, Vertex) und OpenAI GPT-5.5 sind jetzt in den Anbieter-Einstellungen verfügbar
+- **MCP-Allowlists pro Modus** — schränke ein, welche MCP-Server pro Modus aktiv sind, mit einer Allowlist in der Moduskonfiguration
+- **Workspace-Einstellung rootResolution** — neue Einstellung zur Steuerung der Dateipfadauflösung in Multi-Root-Workspaces
 
 ## Was kann Zoo Code für DICH tun?
 

@@ -112,6 +112,18 @@
 			"label": "聊天字型大小",
 			"description": "設定 Zoo Code 聊天的字型大小（以像素為單位）。保留預設值以符合 VS Code 的字型大小。",
 			"reset": "使用 VS Code 預設值"
+		},
+		"autoCloseZooOpenedFiles": {
+			"label": "自動關閉 Zoo 開啟的檔案",
+			"description": "啟用後，Zoo 為 diff 暫時開啟的編輯器分頁將在接受或拒絕變更後自動關閉。使用者在編輯前已開啟的分頁不會被自動關閉。"
+		},
+		"autoCloseZooOpenedFilesAfterUserEdited": {
+			"label": "使用者操作後也自動關閉",
+			"description": "啟用後，即使使用者在編輯工作階段中點擊或輸入了檔案或 diff，Zoo 開啟的分頁也會被關閉。若「自動關閉 Zoo 開啟的檔案」已停用，則此選項無效。"
+		},
+		"autoCloseZooOpenedNewFiles": {
+			"label": "自動關閉新建立的檔案",
+			"description": "啟用後，Zoo 新建（而非修改）的檔案分頁在接受變更後也會自動關閉。"
 		}
 	},
 	"prompts": {
@@ -560,7 +572,8 @@
 			"low": "低",
 			"medium": "中",
 			"high": "高",
-			"xhigh": "超高"
+			"xhigh": "超高",
+			"max": "最高"
 		},
 		"verbosity": {
 			"label": "輸出詳細程度",
@@ -766,10 +779,9 @@
 			"description": "啟用此選項以從父 VS Code 程序繼承環境變數。<0>了解更多</0>"
 		},
 		"profile": {
-			"label": "Zoo Code 終端機覆寫",
-			"default": "使用 VS Code 預設設定檔（建議）",
-			"description": "預設情況下，Zoo Code 使用 VS Code 設定的 Shell。選擇覆寫可從 VS Code 公開的路徑型 Shell 設定檔中選取。僅含來源的設定檔（如內建的 PowerShell 項目）無法在此列出。 <0>了解更多</0>",
-			"overrideLabel": "為 Zoo Code 覆寫 Shell",
+			"label": "Zoo Code 終端機設定檔",
+			"followVscode": "跟隨 VS Code 設定檔 （推薦）",
+			"description": "預設情況下，Zoo Code 使用 VS Code 設定的 Shell。從清單中選擇 VS Code 公開的路徑型 Shell 設定檔。僅含來源的設定檔（如內建的 PowerShell 項目）無法在此列出。 <0>了解更多</0>",
 			"configureButton": "在 VS Code 中選擇預設設定檔",
 			"noProfiles": "(在 terminal.integrated.profiles 中未找到路徑型設定檔)"
 		}

@@ -30,21 +30,11 @@
 
 Roo Code에서 Zoo Code로 옮겨오는 빠른 가이드는 [Roo→Zoo 마이그레이션 가이드](https://docs.zoocode.dev/roo-to-zoo-migration)에서 확인할 수 있어. 전환하는 동안 사용자들을 최대한 돕고 싶고, 바로 그 지원을 위해 [Reddit](https://www.reddit.com/r/ZooCode)와 [Discord](https://discord.gg/VxfP4Vx3gX)를 운영하고 있어. 문제가 있거나 궁금한 점이 있으면 들어와서 편하게 물어봐.
 
-## v3.58.0의 새로운 기능
+## v3.60.0의 새로운 기능
 
-- **Zoo Gateway** — 멀티 프로필 인증을 지원하는 관리형 게이트웨이를 통해 연결하세요
-- **Gemini 3.5 Flash** — 빠르고 강력한 Google 모델이 이제 provider 설정에서 바로 사용 가능해요
-- **Semble 임베딩** — 외부 API 키나 업로드 없이 코드베이스를 로컬에서 인덱싱하세요
-- **채팅 폰트 크기 설정** 및 **VS Code 통합 터미널 셸 재정의** 기능 추가
-- 웹뷰에서 **GitHub 스타일 알림** 렌더링
-- GLM 모델을 위한 **최대 출력 토큰 설정** 기능
-- **WorkspacePathResolver** — 심볼릭 링크가 있는 워크스페이스에서 안정적인 경로 처리
-- 잘못된 후속 제안 모드로 인한 React 충돌 수정
-- 커스텀 값이 없을 때 OpenAI temperature가 생략되던 문제 수정
-- 설정 가져오기 중 키별 실패 처리
-- 보안 업데이트: mermaid v11.15.0, axios v1.16.0
-
----
+- **Fable 5 + GPT-5.5** — Claude Fable 5(Anthropic, Bedrock, Vertex)와 OpenAI GPT-5.5가 공급자 설정에서 이제 사용 가능합니다
+- **모드별 MCP allowlist** — 모드 설정의 allowlist를 사용하여 각 모드에서 활성화할 MCP 서버를 제한하세요
+- **워크스페이스 rootResolution 설정** — 멀티 루트 워크스페이스에서 파일 경로 해석 방식을 제어하는 새 설정
 
 ## Zoo Code가 당신을 위해 무엇을 할 수 있을까요?
 

@@ -165,6 +165,18 @@
 			"label": "Chat font size",
 			"description": "Set the font size (in pixels) for the Zoo Code chat. Leave at the default to match VS Code's font size.",
 			"reset": "Use VS Code default"
+		},
+		"autoCloseZooOpenedFiles": {
+			"label": "Auto-close files Zoo opened",
+			"description": "When enabled, editor tabs that Zoo opened transiently for a diff will be closed automatically after the edit is accepted or rejected. Tabs the user already had open before the edit are never auto-closed."
+		},
+		"autoCloseZooOpenedFilesAfterUserEdited": {
+			"label": "Auto-close even after user interaction",
+			"description": "When enabled, Zoo-opened tabs are closed even if the user clicked or typed inside the file or diff during the edit session. Has no effect when 'Auto-close files Zoo opened' is disabled."
+		},
+		"autoCloseZooOpenedNewFiles": {
+			"label": "Auto-close newly created files",
+			"description": "When enabled, tabs for files that Zoo created (rather than modified) will also be closed automatically after the edit is accepted."
 		}
 	},
 	"prompts": {
@@ -620,7 +632,8 @@
 			"low": "Low",
 			"medium": "Medium",
 			"high": "High",
-			"xhigh": "Extra High"
+			"xhigh": "Extra High",
+			"max": "Max"
 		},
 		"verbosity": {
 			"label": "Output Verbosity",
@@ -819,12 +832,11 @@
 			"description": "Turn this on to inherit environment variables from the parent VS Code process. <0>Learn more</0>"
 		},
 		"profile": {
-			"label": "Zoo Code terminal override",
-			"default": "Use VS Code default profile (recommended)",
-			"overrideLabel": "Override shell for Zoo Code",
+			"label": "Shell for Zoo Code",
+			"followVscode": "Follow VS Code profile (recommended)",
 			"configureButton": "Choose default profile in VS Code",
 			"noProfiles": "(no path-based profiles found in terminal.integrated.profiles)",
-			"description": "By default Zoo Code uses whatever shell VS Code is configured to use. Select Override to pick a path-based shell profile exposed by VS Code. Source-only profiles (e.g. the built-in PowerShell entry) cannot be listed here. <0>Learn more</0>"
+			"description": "Zoo Code uses the shell configured in VS Code by default. Select a specific terminal profile to override this. Only path-based profiles from terminal.integrated.profiles are listed here. <0>Learn more</0>"
 		}
 	},
 	"advancedSettings": {
